@@ -1,0 +1,299 @@
+{
+	/**
+	 * list of files for the bootstrapping
+	 * the files will be defined relative to the "run.js"
+	 *
+	 * @var {Array}
+	 */
+	"bootstrap":
+	[
+		"lib/jasmine/jasmine-2.0.0.rc5/lib/jasmine-core/jasmine.js",
+		"lib/jasmine/boot-2.x.js",
+		"lib/jasmine/bridge-reporter-2.x.js"
+	],
+
+	/**
+	 * list of js files with tests to be included
+	 * the files will be defined relative to the "run.js"
+	 *
+	 * @var {Array}
+	 */
+	"tests": [],
+
+	/**
+	 * defines the reporter js file. the file will be defined relative to the "run.js"
+	 * it can also be a name of the file in the reporter path "lib/pj/reporter"
+	 *
+	 * @var {String}
+	 */
+	"reporter": "console",
+
+	/**
+	 * defines the path to scan for application js files. all sub pathes will be scanned
+	 * every file in the path will be included after the bootstrap js files
+	 * the path is defined relative to "run.js"
+	 * the path can be empty, null or undefined for no scan
+	 *
+	 * @var {String}
+	 */
+	"pathJs": "../js-src",
+
+	/**
+	 * defines the path to scan for js files with tests. all sub pathes will be scanned
+	 * every file in the path will be included after the js test files in the "tests" option
+	 * the path is defined relative to "run.js"
+	 * the path can be empty, null or undefined for no scan
+	 *
+	 * @var {String}
+	 */
+	"pathTests": "tests",
+
+	/**
+	 * path to resources for request from the page. all requests will be redirected
+	 * relative to this path. this will be effected after the resource watcher detected finishing the initial
+	 * load of files. If the value is null, no file will be redirected
+	 *
+	 * @var {String}
+	 */
+	"pathResources": null,
+
+	/**
+	 * exits on finishing all tests
+	 *
+	 * @var {Boolean}
+	 */
+	"exitOnFinish": true,
+
+	/**
+	 * defines log options
+	 *
+	 * @var {Object}
+	 */
+	"log":
+	{
+		/**
+		 * filter options
+		 *
+		 * @var {Object}
+		 */
+		"filter":
+		{
+			/**
+			 * regular expression for filter options if the value is null, filtering is disabled
+			 *
+			 * @var {String}
+			 */
+			"regexp": null,
+
+			/**
+			 * invert the regular expression for filter
+			 *
+			 * @var {Boolean}
+			 */
+			"not": false
+		},
+
+		/**
+		 * defines log level. These log levels are possible
+		 * - ERROR = 3
+		 * - WARN = 4
+		 * - INFO = 6
+		 * - DEBUG = 7
+		 *
+		 * @var {Number}
+		 */
+		"level": 4,
+
+		/**
+		 * defines log options for page in which the application js is runnning
+		 *
+		 * @var {Object}
+		 */
+		"page":
+		{
+			/**
+			 * defines if console messages from the application should be outputed to the shell
+			 *
+			 * @var {Boolean}
+			 */
+			"message": false,
+
+			/**
+			 * defines log resource handling from the application
+			 *
+			 * @var {Object}
+			 */
+			"resource":
+			{
+				/**
+				 * defines that request should be logged or not
+				 *
+				 * @var {Boolean}
+				 */
+				"request": false,
+
+				/**
+				 * defines that the response of request should be logged or not
+				 *
+				 * @var {Boolean}
+				 */
+				"received": false,
+
+				/**
+				 * defines that the errors of request should be logged or not
+				 *
+				 * @var {Boolean}
+				 */
+				"error": false
+			}
+		}
+	},
+
+	/**
+	 * defines the page which will be loaded. all injected js has the root path to the path to this file
+	 * this file will be relative to the "run.js"
+	 *
+	 * @var {String}
+	 */
+	"pageFile": "page.html",
+
+	/**
+	 * defines the number of milliseconds after the loading of the last resource (js files, images, etc)
+	 * if the time raised, jasmine will be executed
+	 *
+	 * @var {Number}
+	 */
+	"resourceTimeout": 500,
+
+	/**
+	 * enables or disables cookies
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-phantom#cookiesenabled-boolean
+	 * @var {Boolean}
+	 */
+	"cookiesEnabled": true,
+
+	/**
+	 * set cookies to phantom and page
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference#cookie-object
+	 * @var {Array} of {Object}
+	 */
+	"cookies":
+	[
+		/**
+		 * this is a example cookie
+		 *
+		 * "name", "value" and "domain" are required
+		 */
+		{
+			"name":     "Valid-Cookie-Name",
+			"value":    "Valid-Cookie-Value",
+			"domain":   "localhost",
+			"path":     "/foo",
+			"httponly": true,
+			"secure":   false,
+			"expires":  1234567891012
+		}
+	],
+
+	/**
+	 * js can navigate back
+	 * set this value to NULL if you do not want it setted
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#wiki-webpage-canGoBack
+	 * @var {Boolean}
+	 */
+	"canGoBack": true,
+
+	/**
+	 * js can navigate forward
+	 * set this value to NULL if you do not want it setted
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#wiki-webpage-canGoForward
+	 * @var {Boolean}
+	 */
+	"canGoForward": true,
+
+	/**
+	 * This property specifies additional HTTP request headers that will be sent to the server for every request issued (for pages and resources).
+	 * Headers names and values get encoded in US-ASCII before being sent.
+	 * set this value to NULL if you do not want it setted
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#wiki-webpage-customHeaders
+	 * @var {Boolean}
+	 */
+	"customHeaders": null,
+
+	/**
+	 * This property defines whether navigation away from the page is permitted or not. If it is set to true, then the page is locked to the current URL
+	 * set this value to NULL if you do not want it setted
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#wiki-webpage-navigationLocked
+	 * @var {Boolean}
+	 */
+	"navigationLocked": false,
+
+	/**
+	 * defines whether to load the inlined images or not
+	 * set this value to NULL if you do not want it setted
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#settings-object
+	 * @var {Boolean}
+	 */
+	"loadImages": true,
+
+	/**
+	 * defines whether local resource (e.g. from file) can access remote URLs or not
+	 * set this value to NULL if you do not want it setted
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#settings-object
+	 * @var {Boolean}
+	 */
+	"localToRemoteUrlAccessEnabled": false,
+
+	/**
+	 * defines the user agent sent to server when the web page requests resources.
+	 * set this value to NULL if you do not want it setted
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#settings-object
+	 * @var {String}
+	 */
+	"userAgent": null,
+
+	/**
+	 * sets the user name used for HTTP authentication.
+	 * set this value to NULL if you do not want it setted
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#settings-object
+	 * @var {String}
+	 */
+	"userName": null,
+
+	/**
+	 * sets the password used for HTTP authentication.
+	 * set this value to NULL if you do not want it setted
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#settings-object
+	 * @var {String}
+	 */
+	"password": null,
+
+	/**
+	 * defines whether load requests should be monitored for cross-site scripting attempts
+	 * set this value to NULL if you do not want it setted
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#settings-object
+	 * @var {Boolean}
+	 */
+	"XSSAuditingEnabled": false,
+
+	/**
+	 * defines whether web security should be enabled or not
+	 * set this value to NULL if you do not want it setted
+	 *
+	 * @see https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#settings-object
+	 * @var {Boolean}
+	 */
+	"webSecurityEnabled": true
+}

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+SRC_DIR="`pwd`"
+cd ./pj
+./run --config ../config.json "$@"
+cd $SRC_DIR

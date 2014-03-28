@@ -1,0 +1,57 @@
+{
+	"help":
+	{
+		"name": "help",
+		"type": "flag",
+		"short": "h",
+		"description": "Print this help"
+	},
+
+	"config":
+	{
+		"name": "config",
+		"type": "string",
+		"short": "c",
+		"description": "Defines the config file"
+	},
+
+	"verbose":
+	{
+		"name": "verbose",
+		"type": "flag",
+		"short": "v",
+		"description": "Increase verbosity of messages to debug level 6 (error, warn, info)"
+	},
+
+	"pageMessage":
+	{
+		"name": "pageMessage",
+		"type": "flag",
+		"short": "m",
+		"description": "Enables the config config.log.page.message to display all messages from the page"
+	},
+
+	"tests":
+	{
+		"name": "tests",
+		"type": "list",
+		"short": "t",
+		"description": "Runs only the given test files or pathes containing test files relative defined to config.pathTests."
+	},
+
+	"filter":
+	{
+		"name": "filter",
+		"type": "string",
+		"short": "f",
+		"description": "Defines a regular expression for filtering and overwrites config.log.filter.regexp"
+	},
+
+	"filterNot":
+	{
+		"name": "filterNot",
+		"type": "boolean",
+		"short": "n",
+		"description": "Invert the regular expression for filtering and overwrites config.log.filter.not"
+	}
+}
