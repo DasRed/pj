@@ -1,0 +1,29 @@
+{
+	"bootstrap":
+	[
+		"../jasmine/suite.js",
+		"../jasmine/matcher/toBeContain.js",
+		"../../js-src/lib/require.js/r.js-2.1.9/require.js",
+		"../bootstrap.js",
+		"../../js-src/app/config.js"
+	],
+
+	"pathJs": null,
+	"pathTests": "../tests",
+	"pathResources": "../resources",
+
+	"log":
+	{
+		"level": 4,
+		"page":
+		{
+			"message": false,
+			"resource":
+			{
+				"request": false,
+				"received": false,
+				"error": false
+			}
+		}
+	}
+}
