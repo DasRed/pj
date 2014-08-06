@@ -1,6 +1,8 @@
 #!/bin/sh
 
-SRC_DIR="`pwd`"
-cd ./pj
-./run --config ../config.json "$@"
-cd $SRC_DIR
+SCRIPT=$(readlink -f "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
+
+cd ${SCRIPTPATH}/js-tests
+${SCRIPTPATH}/../bin/pj --config ./config.json "$@"
+
