@@ -18,18 +18,27 @@ var findFileForWebRequest = function(resource)
 
 	for (var i = 0; i < pathesToTest.length; i++)
 	{
-		var url = resource.url.replace(phantom.libraryPath, '').replace('file:///', '');
+		var url = resource.url;
+		var urlWithOutProtocol = url.replace('file:///', '');
+		var fileAsRequested = urlWithOutProtocol;
 
 		var parameters = '';
-		var parameterStartIndex = url.indexOf('?');
+		var parameterStartIndex = fileAsRequested.indexOf('?');
 		if (parameterStartIndex !== -1)
 		{
-			parameters = url.substr(parameterStartIndex);
-			url = url.substr(0, parameterStartIndex);
+			parameters = fileAsRequested.substr(parameterStartIndex);
+			fileAsRequested = fileAsRequested.substr(0, parameterStartIndex);
 		}
 
-		var file = pathesToTest[i] + '/' + url;
-		console.debug('[PageResourceWatcher] Searching file ' + url + ' for Request (#' + resource.id + ') in "' + pathesToTest[i]);
+		// requested fiel does exists
+		if (fs.exists(fileAsRequested) === true)
+		{
+			return resource.url;
+		}
+
+		var file = pathesToTest[i] + '/' + fileAsRequested.replace(phantom.libraryPath, '');
+		file = file.replace('//', '/').replace('\\\\', '\\\\');
+		console.debug('[PageResourceWatcher] Searching file ' + fileAsRequested + ' for Request (#' + resource.id + ') in "' + pathesToTest[i]);
 
 		if (fs.exists(file) === true)
 		{
@@ -85,6 +94,13 @@ PageResourceWatcher.prototype = Object.create(Object.prototype,
 		enumerable: true,
 		value: false
 	},
+	loadFinished:
+	{
+		writable: true,
+		configurable: true,
+		enumerable: true,
+		value: false
+	},
 	onComplete:
 	{
 		writable: true,
@@ -133,6 +149,9 @@ PageResourceWatcher.prototype.error = function(resource)
  */
 PageResourceWatcher.prototype.loadFinished = function()
 {
+	console.debug('[PageResourceWatcher] Load finished');
+	this.loadFinished = true;
+
 	this.setTimer();
 
 	return this;
@@ -178,7 +197,11 @@ PageResourceWatcher.prototype.receive = function(resource)
  */
 PageResourceWatcher.prototype.request = function(resource, networkRequest)
 {
-	var url = findFileForWebRequest(resource);
+	var url = resource.url;
+	if (this.loadFinished === true)
+	{
+		url = findFileForWebRequest(resource);
+	}
 	if (resource.url !== url)
 	{
 		networkRequest.changeUrl(url);
