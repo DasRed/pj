@@ -25,7 +25,7 @@ var handlePropertiesToCorrectForPathes = function(config, path)
 
 	if (config.log !== undefined)
 	{
-		config.log.jUnit = fs.absolute(path + '/' + config.log.jUnit);
+		config.log.jUnit = correctToPath(config.log.jUnit, path);
 	}
 
 	return config;
