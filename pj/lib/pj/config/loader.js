@@ -42,10 +42,16 @@ var correctToPath = function(value, path)
 			if (fs.exists(fileNameAbsolute) === true)
 			{
 				value = fileNameAbsolute;
+				console.debug('[Config Loader] Founded file ' + value);
 			}
 			else if (fs.exists(fileName) === true)
 			{
 				value = fileName;
+				console.debug('[Config Loader] Founded file ' + value);
+			}
+			else
+			{
+				console.debug('[Config Loader] Can not found file ' + value);
 			}
 			break;
 	}
