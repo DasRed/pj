@@ -42,16 +42,10 @@ var correctToPath = function(value, path)
 			if (fs.exists(fileNameAbsolute) === true)
 			{
 				value = fileNameAbsolute;
-				console.debug('[Config Loader] Founded file ' + value);
 			}
 			else if (fs.exists(fileName) === true)
 			{
 				value = fileName;
-				console.debug('[Config Loader] Founded file ' + value);
-			}
-			else
-			{
-				console.debug('[Config Loader] Can not found file ' + value);
 			}
 			break;
 	}
@@ -79,10 +73,14 @@ if (fs.isFile(phantom.libraryPath + '/config.json') === true)
 // command line config
 if (cliOptions.config !== undefined && fs.isFile(fs.workingDirectory + '/' + cliOptions.config) === true)
 {
+	var file = (fs.workingDirectory + '/' + cliOptions.config).replace('\\', '/');
+	var pathParts = file.split('/');
+	file = pathParts.pop();
+
 	configFiles.push(
 	{
-		path: fs.workingDirectory + '/',
-		file: cliOptions.config
+		path: pathParts.join('/') + '/',
+		file: file
 	});
 }
 
