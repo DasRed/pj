@@ -10,7 +10,7 @@ console.LEVEL_WARN = 4;
 console.LEVEL_INFO = 6;
 console.LEVEL_DEBUG = 7;
 
-var warnText = {}
+var warnText = {};
 warnText[console.LEVEL_ERROR]	= 'error';
 warnText[console.LEVEL_WARN]	= 'warn ';
 warnText[console.LEVEL_INFO]	= 'info ';

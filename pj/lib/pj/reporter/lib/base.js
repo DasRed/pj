@@ -4,6 +4,7 @@
  * constructor
  *
  * @param {WebPage} page
+ * @param {Function} onFinish
  * @returns {ReporterBase}
  */
 var ReporterBase = function(page, onFinish)
@@ -18,7 +19,7 @@ var ReporterBase = function(page, onFinish)
 	{
 		if (oldCallback !== undefined)
 		{
-			oldCallback(page, data);
+			oldCallback(data);
 		}
 
 		if (data.type === 'PhantomJsJasmineReporterBridge')

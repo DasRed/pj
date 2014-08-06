@@ -7,6 +7,31 @@ var lodash = require('./../../lodash/lodash.js');
 var cliOptions = require('./../cli/parser');
 
 /**
+ * handles path information on config
+ *
+ * @param {Object} config
+ * @param {String} path
+ * @returns {Object}
+ */
+var handlePropertiesToCorrectForPathes = function(config, path)
+{
+	config.bootstrap = correctToPath(config.bootstrap, path);
+	config.tests = correctToPath(config.tests, path);
+	config.reporter = correctToPath(config.reporter, path);
+	config.pathJs = correctToPath(config.pathJs, path);
+	config.pathTests = correctToPath(config.pathTests, path);
+	config.pathResources = correctToPath(config.pathResources, path);
+	config.pageFile = correctToPath(config.pageFile, path);
+
+	if (config.log !== undefined)
+	{
+		config.log.jUnit = fs.absolute(path + '/' + config.log.jUnit);
+	}
+
+	return config;
+};
+
+/**
  * applies a path to given option
  *
  * @param {Mixed} value
@@ -88,7 +113,6 @@ if (cliOptions.config !== undefined && fs.isFile(fs.workingDirectory + '/' + cli
 try
 {
 	var config = {};
-	var configToPathCorrect = ['bootstrap', 'tests', 'reporter', 'pathJs', 'pathTests', 'pathResources', 'pageFile'];
 	var pathesToTest = [];
 	configFiles.forEach(function(fileData)
 	{
@@ -100,10 +124,7 @@ try
 			var configFromFile = JSON.parse(fs.read(fileData.path + '/' + fileData.file));
 
 			// correct path
-			for (var i = 0; i < configToPathCorrect.length; i++)
-			{
-				configFromFile[configToPathCorrect[i]] = correctToPath(configFromFile[configToPathCorrect[i]], fileData.path);
-			}
+			configFromFile = handlePropertiesToCorrectForPathes(configFromFile, fileData.path);
 
 			// merge into config
 			config = lodash.merge(config, configFromFile, function(a, b)
@@ -129,12 +150,9 @@ try
 	});
 
 	// correct path
-	for (var i = 0; i < configToPathCorrect.length; i++)
+	for (var i = 0; i < pathesToTest.length; i++)
 	{
-		for (var j = 0; j < pathesToTest.length; j++)
-		{
-			config[configToPathCorrect[i]] = correctToPath(config[configToPathCorrect[i]], pathesToTest[j]);
-		}
+		config = handlePropertiesToCorrectForPathes(config, pathesToTest[i]);
 	}
 }
 catch (e)
@@ -173,6 +191,8 @@ lodash.each(cliOptions, function(value, name)
 
 	obj[name[0]] = value;
 });
+
+config = handlePropertiesToCorrectForPathes(config, fs.workingDirectory);
 
 // export
 module.exports = config;

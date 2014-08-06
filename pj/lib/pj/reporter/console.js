@@ -65,9 +65,11 @@ var log = function(message, spaces, newLine)
 /**
  * constructor
  *
+ * @param {WebPage} page
+ * @param {Function} onFinish
  * @returns {ReporterConsole}
  */
-var ReporterConsole = function(page)
+var ReporterConsole = function(page, onFinish)
 {
 	ReporterBase.apply(this, arguments);
 	return this;
@@ -77,21 +79,6 @@ var ReporterConsole = function(page)
  * protype definition
  */
 ReporterConsole.prototype = Object.create(ReporterBase.prototype);
-
-/**
- * if jamsine is starting
- *
- * @returns {ReporterConsole}
- */
-ReporterConsole.prototype.jasmineStarted = function()
-{
-	ReporterBase.prototype.jasmineStarted.apply(this, arguments);
-
-	log('Jasmine ' + this.jasmine.version + '.');
-	log();
-
-	return this;
-};
 
 /**
  * if jamsine has all done
@@ -161,6 +148,21 @@ ReporterConsole.prototype.jasmineDone = function()
 		}
 		log('OK (' + message +'.)');
 	}
+
+	return this;
+};
+
+/**
+ * if jamsine is starting
+ *
+ * @returns {ReporterConsole}
+ */
+ReporterConsole.prototype.jasmineStarted = function()
+{
+	ReporterBase.prototype.jasmineStarted.apply(this, arguments);
+
+	log('Jasmine ' + this.jasmine.version + '.');
+	log();
 
 	return this;
 };

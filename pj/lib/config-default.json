@@ -19,6 +19,7 @@
 
 	"log":
 	{
+		"jUnit": null,
 		"filter":
 		{
 			"regexp": null,

@@ -42,6 +42,13 @@ var config = require('./lib/pj/config/loader');
 console.info('[Run] Creating webpage');
 var page = require('./lib/pj/page/creator');
 
+// loading junit reporter
+if (config.log !== undefined && config.log.jUnit !== undefined)
+{
+	console.info('[Run] Creating jUnit reporter: jUnit');
+	var reporterConfig = new (require('./lib/pj/reporter/jUnit'))(page, undefined, config.log.jUnit);
+}
+
 //load the defined reporter
 console.info('[Run] Creating reporter: ' + config.reporter);
 var reporterConfig = new (require('./lib/pj/reporter/lib/factory'))(page, function()
