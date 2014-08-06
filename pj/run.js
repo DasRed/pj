@@ -1,5 +1,4 @@
 'use strict';
-
 var fs = require('fs');
 var ERROR = require('./lib/pj/error');
 var cliOptions = require('./lib/pj/cli/parser');
@@ -29,7 +28,7 @@ phantom.onError = function(message, trace)
 		messageStack.push('TRACE:');
 		trace.forEach(function(t)
 		{
-			messageStack.push(' -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function + '")' : ''));
+			messageStack.push(' -> ' + t.file + ': ' + t.line + (t['function'] ? ' (in function "' + t['function'] + '")' : ''));
 		});
 	}
 	console.error(messageStack.join('\n'));
@@ -72,17 +71,19 @@ var resourceWatcher = new (require('./lib/pj/page/resourceWatcher'))(page, funct
 //creating injectors
 console.info('[Run] Injecting webpage');
 var injector = require('./lib/pj/page/injector');
-var injectorBootstrap = new injector(config.bootstrap, config.pathJs);
+var injectorBootstrap = new injector(config.bootstrap);
 
 var injectorTests = null;
 // create tests from path
 if (cliOptions.tests === undefined)
 {
+	console.info('[Run] creating injector from config file with tests ' + JSON.stringify(config.tests) + ' in path "' + config.pathTests + '"');
 	injectorTests = new injector(config.tests, config.pathTests);
 }
 // use given tests
 else
 {
+	console.info('[Run] creating injector from cli options file with tests ' + JSON.stringify(cliOptions.tests) + ' in path "' + config.pathTests + '"');
 	var testFiles = [];
 	cliOptions.tests.forEach(function(entry, index)
 	{
@@ -100,8 +101,8 @@ else
 }
 
 // open the dummy page
-console.info('[Run] Open webpage');
-page.open('file:///' + phantom.libraryPath + '/' + config.pageFile, function()
+console.info('[Run] Open webpage "' + config.pageFile + '"');
+page.open('file:///' + config.pageFile, function()
 {
 	// inject files
 	injectorBootstrap.inject(page);

@@ -1,3 +1,0 @@
-#!/bin/sh
-
-phantomjs/phantomjs-1.9.2-linux-x86_64/bin/phantomjs run.js "$@"

@@ -6,30 +6,103 @@ var system = require('system');
 var lodash = require('./../../lodash/lodash.js');
 var cliOptions = require('./../cli/parser');
 
+/**
+ * applies a path to given option
+ *
+ * @param {Mixed} value
+ * @param {String} path
+ * @returns {Mixed}
+ */
+var correctToPath = function(value, path)
+{
+	switch(true)
+	{
+		case value === null:
+		case value === undefined:
+			break;
+
+		case lodash.isArray(value):
+			for (var i = 0; i < value.length; i++)
+			{
+				value[i] = correctToPath(value[i], path);
+			}
+			break;
+
+		case lodash.isPlainObject(value):
+			for (var key in value)
+			{
+				value[key] = correctToPath(value[key]);
+			}
+			break;
+
+		default:
+			var fileName = path + '/' + value;
+			var fileNameAbsolute = fs.absolute(fileName);
+
+			if (fs.exists(fileNameAbsolute) === true)
+			{
+				value = fileNameAbsolute;
+			}
+			else if (fs.exists(fileName) === true)
+			{
+				value = fileName;
+			}
+			break;
+	}
+
+	return value;
+};
+
 // default config
-var configFiles = ['/lib/config-default.json'];
+var configFiles = [
+{
+	path: phantom.libraryPath + '/lib/',
+	file: 'config-default.json'
+}];
 
 // exists config near run.js
 if (fs.isFile(phantom.libraryPath + '/config.json') === true)
 {
-	configFiles.push('config.json');
+	configFiles.push(
+	{
+		path: phantom.libraryPath + '/',
+		file: 'config.json'
+	});
 }
 
 // command line config
-if (cliOptions.config !== undefined && fs.isFile(phantom.libraryPath + '/' + cliOptions.config) === true)
+if (cliOptions.config !== undefined && fs.isFile(fs.workingDirectory + '/' + cliOptions.config) === true)
 {
-	configFiles.push(cliOptions.config);
+	configFiles.push(
+	{
+		path: fs.workingDirectory + '/',
+		file: cliOptions.config
+	});
 }
 
 //loads the config
 try
 {
 	var config = {};
-	configFiles.forEach(function(file)
+	var configToPathCorrect = ['bootstrap', 'tests', 'reporter', 'pathJs', 'pathTests', 'pathResources', 'pageFile'];
+	var pathesToTest = [];
+	configFiles.forEach(function(fileData)
 	{
 		try
 		{
-			config = lodash.merge(config, JSON.parse(fs.read(phantom.libraryPath + '/' + file)), function(a, b)
+			pathesToTest.unshift(fileData.path);
+
+			// load the config
+			var configFromFile = JSON.parse(fs.read(fileData.path + '/' + fileData.file));
+
+			// correct path
+			for (var i = 0; i < configToPathCorrect.length; i++)
+			{
+				configFromFile[configToPathCorrect[i]] = correctToPath(configFromFile[configToPathCorrect[i]], fileData.path);
+			}
+
+			// merge into config
+			config = lodash.merge(config, configFromFile, function(a, b)
 			{
 				// callback to merge recursive
 				switch(true)
@@ -50,6 +123,15 @@ try
 			throw new Error('[Config Loader] ' + (e.message || e) + ': ' + file);
 		}
 	});
+
+	// correct path
+	for (var i = 0; i < configToPathCorrect.length; i++)
+	{
+		for (var j = 0; j < pathesToTest.length; j++)
+		{
+			config[configToPathCorrect[i]] = correctToPath(config[configToPathCorrect[i]], pathesToTest[j]);
+		}
+	}
 }
 catch (e)
 {
@@ -66,13 +148,13 @@ config.log.filter.not = cliOptions.filterNot !== true ? config.log.filter.not : 
 // take cli config options and overwrite existing config values
 lodash.each(cliOptions, function(value, name)
 {
-	if (typeof value === 'function' ||name.substr(0, 'config-'.length) !== 'config-')
+	if (typeof value === 'function' || name.substr(0, 'config-'.length) !== 'config-')
 	{
 		return;
 	}
 
 	var obj = config;
-	var name = name.split('-');
+	name = name.split('-');
 	name.shift();
 
 	while(name.length > 1)

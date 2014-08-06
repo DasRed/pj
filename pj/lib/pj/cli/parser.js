@@ -162,16 +162,13 @@ var parsedOptions = lodash.reduce(system.args, function(acc, value, index)
 		currentOption = getOptionSetting(value.replace(/^(-){1,2}(.+)$/i, '$2'));
 		acc[currentOption.name] = parseValue(currentOption, undefined);
 	}
+	else if (currentOption.type === 'list')
+	{
+		acc[currentOption.name].push(parseValue(currentOption, value));
+	}
 	else
 	{
-		if (currentOption.type === 'list')
-		{
-			acc[currentOption.name].push(parseValue(currentOption, value));
-		}
-		else
-		{
-			acc[currentOption.name] = parseValue(currentOption, value);
-		}
+		acc[currentOption.name] = parseValue(currentOption, value);
 	}
 
 	return acc;

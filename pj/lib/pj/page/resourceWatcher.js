@@ -1,6 +1,44 @@
 'use strict';
 var lodash = require('./../../lodash/lodash.js');
 var config = require('./../config/loader');
+var fs = require('fs');
+
+/**
+ * @param {Object} resource
+ * @returns {String}
+ */
+var findFileForWebRequest = function(resource)
+{
+	var pathesToTest =
+	[
+		config.pathResources,
+		config.pathJs,
+		phantom.libraryPath
+	];
+
+	for (var i = 0; i < pathesToTest.length; i++)
+	{
+		var url = resource.url.replace(phantom.libraryPath, '').replace('file:///', '');
+
+		var parameters = '';
+		var parameterStartIndex = url.indexOf('?');
+		if (parameterStartIndex !== -1)
+		{
+			parameters = url.substr(parameterStartIndex);
+			url = url.substr(0, parameterStartIndex);
+		}
+
+		var file = pathesToTest[i] + '/' + url;
+		console.debug('[PageResourceWatcher] Searching file ' + url + ' for Request (#' + resource.id + ') in "' + pathesToTest[i]);
+
+		if (fs.exists(file) === true)
+		{
+			return 'file:///' + file + parameters;
+		}
+	}
+
+	return resource.url;
+};
 
 /**
  * constructor
@@ -108,7 +146,6 @@ PageResourceWatcher.prototype.loadFinished = function()
  */
 PageResourceWatcher.prototype.receive = function(resource)
 {
-
 	if (config.log.page.resource.received === true)
 	{
 		console.debug('[PageResourceWatcher] Response (#' + resource.id + '): [' + resource.stage + '] ' + resource.url);
@@ -141,20 +178,13 @@ PageResourceWatcher.prototype.receive = function(resource)
  */
 PageResourceWatcher.prototype.request = function(resource, networkRequest)
 {
-	if (this.finished && config.pathResources !== null)
+	var url = findFileForWebRequest(resource);
+	if (resource.url !== url)
 	{
-		var url = resource.url.replace(phantom.libraryPath, '').replace('file:///', '');
-		if (url.substr(0, 1) === '/')
-		{
-			url = url.substr(1);
-		}
-		url = 'file:///' + phantom.libraryPath + '/' + config.pathResources + '/' + url;
-
 		networkRequest.changeUrl(url);
-
 		console.debug('[PageResourceWatcher] Request (#' + resource.id + '): switching ' + resource.url + ' to ' + url);
 	}
-	else if (config.log.page.resource.request === true)
+	else
 	{
 		console.debug('[PageResourceWatcher] Request (#' + resource.id + '): ' + resource.url);
 	}

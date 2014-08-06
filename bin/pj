@@ -1,0 +1,4 @@
+#!/bin/sh
+BASEDIR=$(dirname $0)
+
+${BASEDIR}/../pj/phantomjs/phantomjs-1.9.7-linux-x86_64/bin/phantomjs ${BASEDIR}/../pj/run.js "$@"

@@ -19,7 +19,7 @@ var collectFilesRecursive = function(collection, path, extension)
 		return collection;
 	}
 
-	console.debug('[Injector] Searching files in: ./' + path);
+	console.debug('[Injector] Searching files in: ' + path);
 
 	fs.list(path).forEach(function(entry)
 	{
@@ -107,7 +107,7 @@ Injector.prototype = Object.create(Object.prototype,
  */
 Injector.prototype.getFiles = function()
 {
-	return collectFilesRecursive(this.collection, this.path, this.extension);
+	return lodash.uniq(collectFilesRecursive(this.collection, this.path, this.extension));
 };
 
 /**
@@ -123,11 +123,11 @@ Injector.prototype.inject = function(page)
 	// inject required bootstrap JS Files for the application
 	this.collection.forEach(function(file)
 	{
-		console.debug('[Injector] Injecting file: ./' + file);
+		console.debug('[Injector] Injecting file: ' + file);
 		if (page.injectJs(file) === false)
 		{
 			console.error('[Injector] Can not find file "' + file + '"!');
-			phantom.exit(ERROR.FILE)
+			phantom.exit(ERROR.FILE);
 		}
 	});
 

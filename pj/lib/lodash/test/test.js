@@ -1,16 +1,19 @@
 ;(function(root, undefined) {
   'use strict';
 
+  /** Used to store Lo-Dash to test for bad shim detection */
+  var lodashBadShim = root.lodashBadShim;
+
   /** Method and object shortcuts */
   var phantom = root.phantom,
       amd = root.define && define.amd,
+      argv = root.process && process.argv,
       document = !phantom && root.document,
       body = document && document.body,
       create = Object.create,
       freeze = Object.freeze,
       noop = function() {},
       params = root.arguments,
-      process = root.process,
       push = Array.prototype.push,
       slice = Array.prototype.slice,
       system = root.system,
@@ -27,9 +30,9 @@
     } else if (system) {
       min = 1;
       result = params = system.args;
-    } else if (process) {
+    } else if (argv) {
       min = 2;
-      result = params = process.argv;
+      result = params = argv;
     } else if (params) {
       result = params;
     }
@@ -80,7 +83,7 @@
       root.addEventListener || (root.addEventListener = noop),
       root.setTimeout || (root.setTimeout = noop),
       root.QUnit = load('../vendor/qunit/qunit/qunit.js') || root.QUnit,
-      (load('../vendor/qunit-clib/qunit-clib.js') || { 'runInContext': noop }).runInContext(root),
+      (load('../vendor/qunit-extras/qunit-extras.js') || { 'runInContext': noop }).runInContext(root),
       addEventListener === noop && delete root.addEventListener,
       root.QUnit
     );
@@ -88,10 +91,6 @@
 
   /*--------------------------------------------------------------------------*/
 
-  // load QUnit extras
-  if (load) {
-    (load('./asset/qunit-extras.js') || { 'runInContext': noop }).runInContext(root);
-  }
   // log params passed to `test.js`
   if (params) {
     console.log('test.js invoked with arguments: ' + JSON.stringify(slice.call(params)));
@@ -117,16 +116,7 @@
     page.onInitialized = function() {
       page.evaluate(function() {
         document.addEventListener('DOMContentLoaded', function() {
-          var xhr = new XMLHttpRequest;
-          xhr.open('get', '../vendor/qunit-clib/qunit-clib.js');
-          xhr.onload = function() {
-            var script = document.createElement('script');
-            script.text = xhr.responseText;
-            document.head.appendChild(script);
-            QUnit.done(callPhantom);
-          };
-
-          xhr.send(null);
+          QUnit.done(callPhantom);
         });
       });
     };
@@ -177,6 +167,18 @@
   var shadowedObject = _.invert(shadowedProps);
 
   /**
+   * Removes all own enumerable properties from a given object.
+   *
+   * @private
+   * @param {Object} object The object to empty.
+   */
+  function emptyObject(object) {
+    _.forOwn(object, function(value, key, object) {
+      delete object[key];
+    });
+  }
+
+  /**
    * Skips a given number of tests with a passing result.
    *
    * @private
@@ -195,6 +197,8 @@
   (function() {
     if (!amd) {
       try {
+        emptyObject(require.cache);
+
         _.extend(_, require('vm').runInNewContext([
           '({',
           "'_arguments': (function() { return arguments; }(1, 2, 3)),",
@@ -211,6 +215,48 @@
           "'_undefined': undefined,",
           '})'
         ].join('\n')));
+
+        // set bad shims
+        Array._isArray = Array.isArray;
+        Array.isArray = function() {};
+
+        Date._now = Date.now;
+        Date.now = function() {};
+
+        Function.prototype._bind = Function.prototype.bind;
+        Function.prototype.bind = function() { return function() {}; };
+
+        Object._create = Object.create;
+        Object.create = function() {};
+
+        Object._defineProperty = Object.defineProperty;
+        Object.defineProperty = function() {};
+
+        Object._getPrototypeOf = Object.getPrototypeOf;
+        Object.getPrototypeOf = function() {};
+
+        Object._keys = Object.keys;
+        Object.keys = function() {};
+
+        // load Lo-Dash and expose it to the bad shims
+        lodashBadShim = (lodashBadShim = require(filePath))._ || lodashBadShim;
+
+        // restore native methods
+        Array.isArray = Array._isArray;
+        Date.now = Date._now;
+        Function.prototype.bind = Function.prototype._bind;
+        Object.create = Object._create;
+        Object.defineProperty = Object._defineProperty;
+        Object.getPrototypeOf = Object._getPrototypeOf;
+        Object.keys = Object._keys;
+
+        delete Array._isArray;
+        delete Date._now;
+        delete Function.prototype._bind;
+        delete Object._create;
+        delete Object._defineProperty;
+        delete Object._getPrototypeOf;
+        delete Object._keys;
       } catch(e) { }
     }
     if (!_._object && document) {
@@ -307,50 +353,60 @@
       }
     });
 
-    test('avoids overwritten native methods', 4, function() {
+    test('avoids overwritten native methods', 7, function() {
+      function Foo() {}
+
       function message(methodName) {
         return '`_.' + methodName + '` should avoid overwritten native methods';
       }
-
       var object = { 'a': true };
 
-      if (document) {
+      if (lodashBadShim) {
+        try {
+          actual = [lodashBadShim.isArray([]), lodashBadShim.isArray({ 'length': 0 })];
+        } catch(e) {
+          actual = null;
+        }
+        deepEqual(actual, [true, false], message('Array.isArray'));
+
+        try {
+          actual = lodashBadShim.now();
+        } catch(e) {
+          actual = null;
+        }
+        ok(typeof actual == 'number', message('Date.now'));
+
+        try {
+          actual = [lodashBadShim.create(Foo.prototype, object), lodashBadShim.create()];
+        } catch(e) {
+          actual = null;
+        }
+        ok(actual[0] instanceof Foo, message('Object.create'));
+        deepEqual(actual[1], {}, message('Object.create'));
+
         try {
           var actual = lodashBadShim.bind(function() { return this.a; }, object)();
         } catch(e) {
           actual = null;
         }
-        ok(actual, message('bind'));
+        ok(actual, message('Object.defineProperty'));
 
         try {
-          actual = lodashBadShim.isArray([]);
+          actual = [lodashBadShim.isPlainObject({}), lodashBadShim.isPlainObject([])];
         } catch(e) {
           actual = null;
         }
-        ok(actual, message('isArray'));
+        deepEqual(actual, [true, false], message('Object.getPrototypeOf'));
 
         try {
-          actual = lodashBadShim.keys(object);
+          actual = [lodashBadShim.keys(object), lodashBadShim.keys()];
         } catch(e) {
           actual = null;
         }
-        deepEqual(actual, ['a'], message('keys'));
-
-        try {
-          var Foo = function() {
-            this.a = 2;
-          };
-
-          var actual = _.transform(new Foo, function(result, value, key) {
-            result[key] = value * value;
-          });
-        } catch(e) {
-          actual = null;
-        }
-        ok(actual instanceof Foo, message('transform'));
+        deepEqual(actual, [['a'], []], message('Object.keys'));
       }
       else {
-        skipTest(4);
+        skipTest(7);
       }
     });
   }());
@@ -585,7 +641,6 @@
       function Foo() {
         return this;
       }
-
       var bound = _.bind(Foo, { 'a': 1 }),
           newBound = new bound;
 
@@ -594,10 +649,15 @@
       ok(newBound instanceof Foo);
     });
 
-    test('ensure `new bound` is an instance of `func`', 1, function() {
-      var bound = _.bind(noop, {});
+    test('ensure `new bound` is an instance of `func`', 2, function() {
+      function Foo(value) {
+        return value && object;
+      }
+      var bound = _.bind(Foo),
+          object = {};
 
-      ok(new bound instanceof noop);
+      ok(new bound instanceof Foo);
+      strictEqual(new bound(true), object);
     });
 
     test('should append array arguments to partially applied arguments (test in IE < 9)', 1, function() {
@@ -1276,11 +1336,12 @@
 
     test('should return the function provided if already bound with `Function#bind`', 1, function() {
       function a() {}
+      var object = {};
 
-      var bound = a.bind && a.bind({});
+      var bound = a.bind && a.bind(object);
       if (bound && !('prototype' in bound)) {
-        var bound = a.bind({});
-        strictEqual(_.createCallback(bound, {}), bound);
+        var bound = a.bind(object);
+        strictEqual(_.createCallback(bound, object), bound);
       }
       else {
         skipTest();
@@ -1291,28 +1352,43 @@
       function a() {}
       function b() { return this.b; }
 
+      var object = {};
+
       if (_.support.funcDecomp) {
-        strictEqual(_.createCallback(a, {}), a);
-        notStrictEqual(_.createCallback(b, {}), b);
+        strictEqual(_.createCallback(a, object), a);
+        notStrictEqual(_.createCallback(b, object), b);
       }
       else {
         skipTest(2);
       }
     });
 
-    test('should only write `__bindData__` to named functions', 2, function() {
+    test('should only write `__bindData__` to named functions', 3, function() {
       function a() {};
-      var b = function() {};
+      function c() {};
+
+      var b = function() {},
+          object = {};
 
       if (defineProperty && _.support.funcDecomp) {
-        _.createCallback(a, {});
+        _.createCallback(a, object);
         ok('__bindData__' in a)
 
-        _.createCallback(b, {});
+        _.createCallback(b, object);
         ok(!('__bindData__' in b));
+
+        if (_.support.funcNames) {
+          _.support.funcNames = false;
+          _.createCallback(c, object);
+          ok('__bindData__' in c);
+          _.support.funcNames = true;
+        }
+        else {
+          skipTest();
+        }
       }
       else {
-        skipTest(2);
+        skipTest(3);
       }
     });
   }());
@@ -1352,6 +1428,17 @@
         strictEqual(curried(1).length, 0);
         strictEqual(curried(1, 2).length, 0);
       });
+    });
+
+    test('ensure `new bound` is an instance of `func`', 2, function() {
+      function Foo(value) {
+        return value && object;
+      }
+      var bound = _.curry(Foo),
+          object = {};
+
+      ok(new bound(false) instanceof Foo);
+      strictEqual(new bound(true), object);
     });
 
     test('should not alter the `this` binding', 9, function() {
@@ -1544,7 +1631,7 @@
 
     test('should work with `maxWait` option', 2, function() {
       if (!(isRhino && isModularize)) {
-        var limit = 512,
+        var limit = argv ? 1000 : 500,
             withCount = 0,
             withoutCount = 0;
 
@@ -1554,7 +1641,7 @@
 
         var withoutMaxWait = _.debounce(function() {
           withoutCount++;
-        }, 64);
+        }, 96);
 
         var start = +new Date;
         while ((new Date - start) < limit) {
@@ -1566,6 +1653,27 @@
       }
       else {
         skipTest(2);
+      }
+    });
+
+    asyncTest('should cancel `maxDelayed` when `delayed` is executed', 1, function() {
+      if (!(isRhino && isModularize)) {
+        var count = 0;
+
+        var debounced = _.debounce(function() {
+          count++;
+        }, 32, { 'maxWait': 64 });
+
+        debounced();
+
+        setTimeout(function() {
+          strictEqual(count, 1);
+          QUnit.start();
+        }, 128);
+      }
+      else {
+        skipTest(1);
+        QUnit.start();
       }
     });
 
@@ -1797,6 +1905,16 @@
       deepEqual(_.difference(array1, array2), []);
     });
 
+    test('should work with large arrays of objects', 1, function() {
+      var object = {};
+
+      var largeArray = _.times(largeArraySize, function() {
+        return object;
+      });
+
+      deepEqual(_.difference(largeArray, [object]), []);
+    });
+
     test('should ignore individual secondary values', 1, function() {
       var array = [1, null, 3];
       deepEqual(_.difference(array, null, 3), array);
@@ -2002,6 +2120,14 @@
 
       test('should return `' + expected[1] + '` if value is not found', 1, function() {
         strictEqual(func(objects, function(object) { return object.a == 3; }), expected[1]);
+      });
+
+      test('should work with an object for `collection`', 1, function() {
+        var actual = _.find({ 'a': 1, 'b': 2, 'c': 3 }, function(num) {
+          return num > 2;
+        });
+
+        equal(actual, 3);
       });
 
       test('should work with an object for `callback`', 1, function() {
@@ -2688,19 +2814,19 @@
   QUnit.module('`__proto__` property bugs');
 
   (function() {
-    var stringLiteral = '__proto__',
-        stringObject = Object(stringLiteral),
-        expected = [stringLiteral, stringObject];
-
-    var array = _.times(largeArraySize, function(count) {
-      return count % 2 ? stringObject : stringLiteral;
-    });
-
     test('internal data objects should work with the `__proto__` key', 4, function() {
-      deepEqual(_.difference(array, array), []);
-      deepEqual(_.intersection(array, array), expected);
-      deepEqual(_.uniq(array), expected);
-      deepEqual(_.without.apply(_, [array].concat(array)), []);
+      var stringLiteral = '__proto__',
+          stringObject = Object(stringLiteral),
+          expected = [stringLiteral, stringObject];
+
+      var largeArray = _.times(largeArraySize, function(count) {
+        return count % 2 ? stringObject : stringLiteral;
+      });
+
+      deepEqual(_.difference(largeArray, largeArray), []);
+      deepEqual(_.intersection(largeArray, largeArray), expected);
+      deepEqual(_.uniq(largeArray), expected);
+      deepEqual(_.without.apply(_, [largeArray].concat(largeArray)), []);
     });
 
     test('lodash.memoize should memoize values resolved to the `__proto__` key', 1, function() {
@@ -2954,9 +3080,7 @@
 
       while (++index < length) {
         var other = array[index];
-        if (other === value ||
-            (_.isObject(value) && other instanceof Foo) ||
-            (other === 'x' && /[13]/.test(value))) {
+        if (other === value || (value instanceof Foo && other instanceof Foo)) {
           return index;
         }
       }
@@ -2994,17 +3118,6 @@
       if (!isModularize) {
         _.indexOf = custom;
         deepEqual(_.intersection(array, [new Foo]), [array[1]]);
-        _.indexOf = indexOf;
-      }
-      else {
-        skipTest();
-      }
-    });
-
-    test('`_.omit` should work with a custom `_.indexOf` method', 1, function() {
-      if (!isModularize) {
-        _.indexOf = custom;
-        deepEqual(_.omit(array, ['x']), { '0': 1, '2': 3 });
         _.indexOf = indexOf;
       }
       else {
@@ -3134,6 +3247,17 @@
     test('should return an array of unique values', 1, function() {
       var actual = _.intersection([1, 1, 3, 2, 2], [5, 2, 2, 1, 4], [2, 1, 1]);
       deepEqual(actual, [1, 2]);
+    });
+
+    test('should work with large arrays of objects', 1, function() {
+      var object = {},
+          expected = [object];
+
+      var largeArray = _.times(largeArraySize, function() {
+        return object;
+      });
+
+      deepEqual(_.intersection(expected, largeArray), expected);
     });
 
     test('should return a wrapped value when chaining', 2, function() {
@@ -3712,9 +3836,9 @@
 
       strictEqual(_.isEqual(array1, array2), false);
 
-      array1 = ['a','b', 'c'];
+      array1 = ['a', 'b', 'c'];
       array1[1] = array1;
-      array2 = ['a', ['b', 'b'], 'c'];
+      array2 = ['a', ['a', 'b', 'c'], 'c'];
 
       strictEqual(_.isEqual(array1, array2), false);
     });
@@ -3740,7 +3864,7 @@
 
       object1 = { 'a': 1, 'b': 2, 'c': 3 };
       object1.b = object1;
-      object2 = { 'a': 1, 'b': { 'b': 2 }, 'c': 3 };
+      object2 = { 'a': 1, 'b': { 'a': 1, 'b': 2, 'c': 3 }, 'c': 3 };
 
       strictEqual(_.isEqual(object1, object2), false);
     });
@@ -3785,17 +3909,19 @@
       strictEqual(_.isEqual(object1, object2), true);
     });
 
-    test('should return `false` when comparing values with circular references to unlike values', 2, function() {
-      var array1 = ['a', null, 'c'],
-          array2 = ['a', [], 'c'],
-          object1 = { 'a': 1, 'b': null, 'c': 3 },
-          object2 = { 'a': 1, 'b': {}, 'c': 3 };
+    test('should perform comparisons between objects with shared property values', function() {
+      var object1 = {
+        'a': [1, 2]
+      };
 
-      array1[1] = array1;
-      strictEqual(_.isEqual(array1, array2), false);
+      var object2 = {
+        'a': [1, 2],
+        'b': [1, 2]
+      };
 
-      object1.b = object1;
-      strictEqual(_.isEqual(object1, object2), false);
+      object1.b = object1.a;
+
+      strictEqual(_.isEqual(object1, object2), true);
     });
 
     test('should pass the correct `callback` arguments', 1, function() {
@@ -4221,6 +4347,8 @@
   QUnit.module('lodash.isPlainObject');
 
   (function() {
+    var element = document && document.createElement('div');
+
     test('should detect plain objects', 5, function() {
       function Foo(a) {
         this.a = 1;
@@ -4235,9 +4363,23 @@
       } else {
         skipTest();
       }
-      if (document) {
-        strictEqual(_.isPlainObject(body), false);
+      if (element) {
+        strictEqual(_.isPlainObject(element), false);
       } else {
+        skipTest();
+      }
+    });
+
+    test('should return `true` for plain objects with a custom `valueOf` property', 2, function() {
+      strictEqual(_.isPlainObject({ 'valueOf': 0 }), true);
+
+      if (element) {
+        var valueOf = element.valueOf;
+        element.valueOf = 0;
+        strictEqual(_.isPlainObject(element), false);
+        element.valueOf = valueOf;
+      }
+      else {
         skipTest();
       }
     });
@@ -5289,9 +5431,22 @@
   QUnit.module('lodash.now');
 
   (function() {
-    test('should return the number of milliseconds that have elapsed since the Unix epoch', 1, function() {
-      var actual = _.now();
-      ok(new Date - actual < 4);
+    asyncTest('should return the number of milliseconds that have elapsed since the Unix epoch', 2, function() {
+      var stamp = +new Date,
+          actual = _.now();
+
+      ok(actual >= stamp);
+
+      if (!(isRhino && isModularize)) {
+        setTimeout(function() {
+          ok(_.now() > actual);
+          QUnit.start();
+        }, 32);
+      }
+      else {
+      	skipTest();
+      	QUnit.start();
+      }
     });
   }());
 
@@ -5463,7 +5618,8 @@
   QUnit.module('partial methods');
 
   _.forEach(['partial', 'partialRight'], function(methodName) {
-    var func = _[methodName];
+    var func = _[methodName],
+        isPartial = methodName == 'partial';
 
     test('`_.' + methodName + '` partially applies without additional arguments', 1, function() {
       var arg = 'a',
@@ -5478,7 +5634,7 @@
           expected = [arg1, arg2],
           fn = function(x, y) { return [x, y]; };
 
-      if (methodName == 'partialRight') {
+      if (!isPartial) {
         expected.reverse();
       }
       deepEqual(func(fn, arg1)(arg2), expected);
@@ -5508,10 +5664,34 @@
     });
 
     test('`_.' + methodName + '` returns a function with a `length` of `0`', 1, function() {
-      var func = function(a, b, c) {},
-          actual = _.partial(func, 'a');
+      var fn = function(a, b, c) {},
+          actual = func(fn, 'a');
 
       strictEqual(actual.length, 0);
+    });
+
+    test('ensure `new bound` is an instance of `func`', 2, function() {
+      function Foo(value) {
+        return value && object;
+      }
+      var bound = func(Foo),
+          object = {};
+
+      ok(new bound instanceof Foo);
+      strictEqual(new bound(true), object);
+    });
+
+    test('`_.' + methodName + '` should clone `__bindData__` for created functions', 3, function() {
+      function greet(greeting, name) {
+        return greeting + ' ' + name;
+      }
+      var par1 = func(greet, 'hi'),
+          par2 = func(par1, 'barney'),
+          par3 = func(par1, 'pebbles');
+
+      equal(par1('fred'), isPartial ? 'hi fred' : 'fred hi')
+      equal(par2(), isPartial ? 'hi barney'  : 'barney hi');
+      equal(par3(), isPartial ? 'hi pebbles' : 'pebbles hi');
     });
   });
 
@@ -5532,7 +5712,7 @@
 
   /*--------------------------------------------------------------------------*/
 
-  QUnit.module('methods using `createBound`');
+  QUnit.module('methods using `createWrapper`');
 
   (function() {
     test('combinations of partial functions should work', 1, function() {
@@ -6546,21 +6726,18 @@
 
   (function() {
     var objects = [
-      { 'num': 991 },
-      { 'num': 212 },
-      { 'num': 11 },
-      { 'num': 16 },
-      { 'num': 74 },
-      { 'num': 0 },
-      { 'num': 1515 }
+      { 'a': 'x', 'b': 3 },
+      { 'a': 'y', 'b': 4 },
+      { 'a': 'x', 'b': 1 },
+      { 'a': 'y', 'b': 2 }
     ];
 
     test('should sort in ascending order', 1, function() {
       var actual = _.pluck(_.sortBy(objects, function(object) {
-        return object.num;
-      }), 'num');
+        return object.b;
+      }), 'b');
 
-      deepEqual(actual, [0, 11, 16, 74, 212, 991, 1515]);
+      deepEqual(actual, [1, 2, 3, 4]);
     });
 
     test('should perform a stable sort (test in IE > 8, Opera, and V8)', 1, function() {
@@ -6617,20 +6794,23 @@
     });
 
     test('should work with an array for `callback`', 1, function() {
-      var objects = [
-        { 'a': 'x', 'b': 3 },
-        { 'a': 'y', 'b': 4 },
-        { 'a': 'x', 'b': 1 },
-        { 'a': 'y', 'b': 2 }
-      ];
-
       var actual = _.sortBy(objects, ['a', 'b']);
       deepEqual(actual, [objects[2], objects[0], objects[3], objects[1]]);
     });
 
+    test('should coerce arrays returned from a `callback`', 1, function() {
+      var actual = _.sortBy(objects, function(object) {
+        var result = [object.a, object.b];
+        result.toString = function() { return String(this[0]); };
+        return result;
+      });
+
+      deepEqual(actual, [objects[0], objects[2], objects[1], objects[3]]);
+    });
+
     test('should work with a string for `callback`', 1, function() {
-      var actual = _.pluck(_.sortBy(objects, 'num'), 'num');
-      deepEqual(actual, [0, 11, 16, 74, 212, 991, 1515]);
+      var actual = _.pluck(_.sortBy(objects, 'b'), 'b');
+      deepEqual(actual, [1, 2, 3, 4]);
     });
 
     test('should work with an object for `collection`', 1, function() {
@@ -7231,7 +7411,7 @@
       test('should trigger a call when invoked repeatedly' + (index ? ' and `leading` is `false`' : ''), 1, function() {
         if (!(isRhino && isModularize)) {
           var count = 0,
-              limit = 512,
+              limit = 500,
               options = index ? { 'leading': false } : {};
 
           var throttled = _.throttle(function() {
@@ -7639,6 +7819,20 @@
     test('should return unique values of a sorted array', 1, function() {
       var array = [1, 1, 2, 2, 3];
       deepEqual(_.uniq(array), [1, 2, 3]);
+    });
+
+    test('should work with large arrays', 1, function() {
+      var object = {};
+
+      var largeArray = _.times(largeArraySize, function(index) {
+        switch (index % 3) {
+          case 0: return 0;
+          case 1: return 'a';
+          case 2: return object;
+        }
+      });
+
+      deepEqual(_.uniq(largeArray), [0, 'a', object]);
     });
 
     test('should work with a `callback`', 1, function() {

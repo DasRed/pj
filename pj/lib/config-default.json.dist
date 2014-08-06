@@ -1,7 +1,7 @@
 {
 	/**
 	 * list of files for the bootstrapping
-	 * the files will be defined relative to the "run.js"
+	 * the files will be defined relative the config file
 	 *
 	 * @var {Array}
 	 */
@@ -14,14 +14,14 @@
 
 	/**
 	 * list of js files with tests to be included
-	 * the files will be defined relative to the "run.js"
+	 * the files will be defined relative to the config file
 	 *
 	 * @var {Array}
 	 */
 	"tests": [],
 
 	/**
-	 * defines the reporter js file. the file will be defined relative to the "run.js"
+	 * defines the reporter js file. the file will be defined relative to the config file
 	 * it can also be a name of the file in the reporter path "lib/pj/reporter"
 	 *
 	 * @var {String}
@@ -29,10 +29,9 @@
 	"reporter": "console",
 
 	/**
-	 * defines the path to scan for application js files. all sub pathes will be scanned
-	 * every file in the path will be included after the bootstrap js files
-	 * the path is defined relative to "run.js"
-	 * the path can be empty, null or undefined for no scan
+	 * defines the path to include js files via script tag or src attribute. This defines root path in
+	 * file system for every web request
+	 * the path is defined relative to config file
 	 *
 	 * @var {String}
 	 */
@@ -41,7 +40,7 @@
 	/**
 	 * defines the path to scan for js files with tests. all sub pathes will be scanned
 	 * every file in the path will be included after the js test files in the "tests" option
-	 * the path is defined relative to "run.js"
+	 * the path is defined relative to config file
 	 * the path can be empty, null or undefined for no scan
 	 *
 	 * @var {String}
@@ -151,7 +150,7 @@
 
 	/**
 	 * defines the page which will be loaded. all injected js has the root path to the path to this file
-	 * this file will be relative to the "run.js"
+	 * this file will be relative to the config file
 	 *
 	 * @var {String}
 	 */

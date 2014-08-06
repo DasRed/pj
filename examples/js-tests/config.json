@@ -1,0 +1,13 @@
+{
+	"bootstrap":
+	[
+		"./../js-src/lib/require.js",
+		"./bootstrap.js",
+		"./../js-src/app/config.js"
+	],
+
+	"log":
+	{
+		"level": 4
+	}
+}

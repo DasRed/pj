@@ -1,9 +1,11 @@
 {
 	"bootstrap":
 	[
-		"lib/jasmine/jasmine-2.0.0.rc5/lib/jasmine-core/jasmine.js",
-		"lib/jasmine/boot-2.x.js",
-		"lib/jasmine/bridge-reporter-2.x.js"
+		"jasmine/jasmine-2.0.1/lib/jasmine-core/jasmine.js",
+		"jasmine/boot-2.x.js",
+		"jasmine/bridge-reporter-2.x.js",
+		"jasmine/extension/suite.js",
+		"jasmine/extension/matcher/toBeContain.js"
 	],
 	"tests": [],
 
@@ -11,7 +13,7 @@
 
 	"pathJs": "../js-src",
 	"pathTests": "tests",
-	"pathResources": null,
+	"pathResources": "resources",
 
 	"exitOnFinish": true,
 
@@ -35,7 +37,7 @@
 		}
 	},
 
-	"pageFile": "page.html",
+	"pageFile": "../page.html",
 	"resourceTimeout": 500,
 
 	"cookiesEnabled": true,
