@@ -3,42 +3,10 @@
 /**
  * constructor
  *
- * @param {WebPage} page
- * @param {Function} onFinish
  * @returns {ReporterBase}
  */
-var ReporterBase = function(page, onFinish)
+var ReporterBase = function()
 {
-	this.page = page;
-
-	var self = this;
-	var oldCallback = page.onCallback;
-
-	// link into comunication
-	page.onCallback = function(data)
-	{
-		if (oldCallback !== undefined)
-		{
-			oldCallback(data);
-		}
-
-		if (data.type === 'PhantomJsJasmineReporterBridge')
-		{
-			console.debug('[Reporter] Callback from PhantomJsJasmineReporterBridge for method: ', data.method, JSON.stringify(data.parameters));
-
-			self.jasmine = data.jasmine;
-			if (self[data.method] !== undefined)
-			{
-				self[data.method].apply(self, data.parameters);
-			}
-
-			if (data.method === 'jasmineDone' && onFinish!== undefined)
-			{
-				onFinish();
-			}
-		}
-	};
-
 	return this;
 };
 
@@ -69,13 +37,6 @@ ReporterBase.RESULT_STATUS_FAILED = 'failed';
 ReporterBase.prototype = Object.create(Object.prototype,
 {
 	jasmine:
-	{
-		writable: true,
-		configurable: true,
-		enumerable: true,
-		value: null
-	},
-	page:
 	{
 		writable: true,
 		configurable: true,
@@ -119,8 +80,6 @@ ReporterBase.prototype = Object.create(Object.prototype,
  */
 ReporterBase.prototype.jasmineDone = function()
 {
-	console.info('[Reporter] Jasmine has finished.');
-
 	return this;
 };
 
@@ -132,8 +91,6 @@ ReporterBase.prototype.jasmineDone = function()
  */
 ReporterBase.prototype.jasmineStarted = function(info)
 {
-	console.info('[Reporter] Jasmine is started with ' + info.totalSpecsDefined + ' specs defined.');
-
 	this.runnerStartTime = new Date();
 
 	return this;
@@ -163,8 +120,6 @@ ReporterBase.prototype.specDone = function(specResult)
 			break;
 	}
 
-	console.info('[Reporter] Jasmine has finished the spec "' + specResult.fullName + '" with status "' + specResult.status + '".');
-
 	return this;
 };
 
@@ -176,8 +131,6 @@ ReporterBase.prototype.specDone = function(specResult)
  */
 ReporterBase.prototype.specStarted = function(specResult)
 {
-	console.info('[Reporter] Jasmine starts the spec "' + specResult.fullName + '".');
-
 	return this;
 };
 
@@ -189,8 +142,6 @@ ReporterBase.prototype.specStarted = function(specResult)
  */
 ReporterBase.prototype.suiteDone = function(suiteResult)
 {
-	console.info('[Reporter] Jasmine has finished the suite "' + suiteResult.fullName + '".');
-
 	return this;
 };
 
@@ -202,8 +153,6 @@ ReporterBase.prototype.suiteDone = function(suiteResult)
  */
 ReporterBase.prototype.suiteStarted = function(suiteResult)
 {
-	console.info('[Reporter] Jasmine starts the suite "' + suiteResult.fullName + '".');
-
 	return this;
 };
 

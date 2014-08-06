@@ -1,6 +1,6 @@
 'use strict';
 // taken from https://github.com/larrymyers/jasmine-reporters
-var ReporterBase = require('./lib/base.js');
+var ReporterBase = require('./../base.js');
 var fs = require('fs');
 
 function trim(str) { return str.replace(/^\s+/, "" ).replace(/\s+$/, "" ); }
@@ -56,14 +56,12 @@ function log(str) {
 /**
  * constructor
  *
- * @param {WebPage} page
- * @param {Function} onFinish
  * @param {String} file
  * @returns {ReporterJUnit}
  */
-var ReporterJUnit = function(page, onFinish, file)
+var ReporterJUnit = function(file)
 {
-	ReporterBase.call(this, page, onFinish);
+	ReporterBase.call(this);
 
 	var self = this;
 	self.started = false;

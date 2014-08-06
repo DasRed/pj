@@ -42,22 +42,31 @@ var config = require('./lib/pj/config/loader');
 console.info('[Run] Creating webpage');
 var page = require('./lib/pj/page/creator');
 
+// creating the handler for all reporter
+console.info('[Run] Creating reporter handler');
+var reporterHandler = new (require('./lib/pj/reporter/handler'))(page);
+
 // loading junit reporter
-if (config.log !== undefined && config.log.jUnit !== undefined)
+console.info('[Run] Creating reporter: debug');
+reporterHandler.add(new (require('./lib/pj/reporter/writer/debug'))());
+
+// loading junit reporter
+if (config.log !== undefined && config.log.jUnit !== undefined && config.log.jUnit !== null)
 {
 	console.info('[Run] Creating jUnit reporter: jUnit');
-	var reporterConfig = new (require('./lib/pj/reporter/jUnit'))(page, undefined, config.log.jUnit);
+	reporterHandler.add(new (require('./lib/pj/reporter/writer/jUnit'))(config.log.jUnit));
 }
 
 //load the defined reporter
-console.info('[Run] Creating reporter: ' + config.reporter);
-var reporterConfig = new (require('./lib/pj/reporter/lib/factory'))(page, function()
+console.info('[Run] Creating reporter: console');
+reporterHandler.add(new (require('./lib/pj/reporter/writer/console'))());
+
+// loading reporter for finishing
+if (config.exitOnFinish === true)
 {
-	if (config.exitOnFinish === true)
-	{
-		phantom.exit(0);
-	}
-});
+	console.info('[Run] Creating reporter: finished');
+	reporterHandler.add(new (require('./lib/pj/reporter/writer/finished'))());
+}
 
 // resource watcher for waiting of resources are finished
 console.info('[Run] Creating resource watcher');

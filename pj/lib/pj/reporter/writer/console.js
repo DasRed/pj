@@ -1,7 +1,7 @@
 'use strict';
 
-var config = require('./../config/loader');
-var ReporterBase = require('./lib/base.js');
+var config = require('./../../config/loader');
+var ReporterBase = require('./../base.js');
 
 /**
  * indent a string
@@ -65,11 +65,9 @@ var log = function(message, spaces, newLine)
 /**
  * constructor
  *
- * @param {WebPage} page
- * @param {Function} onFinish
  * @returns {ReporterConsole}
  */
-var ReporterConsole = function(page, onFinish)
+var ReporterConsole = function()
 {
 	ReporterBase.apply(this, arguments);
 	return this;

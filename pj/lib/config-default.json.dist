@@ -21,14 +21,6 @@
 	"tests": [],
 
 	/**
-	 * defines the reporter js file. the file will be defined relative to the config file
-	 * it can also be a name of the file in the reporter path "lib/pj/reporter"
-	 *
-	 * @var {String}
-	 */
-	"reporter": "console",
-
-	/**
 	 * defines the path to include js files via script tag or src attribute. This defines root path in
 	 * file system for every web request
 	 * the path is defined relative to config file

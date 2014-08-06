@@ -17,7 +17,6 @@ var handlePropertiesToCorrectForPathes = function(config, path)
 {
 	config.bootstrap = correctToPath(config.bootstrap, path);
 	config.tests = correctToPath(config.tests, path);
-	config.reporter = correctToPath(config.reporter, path);
 	config.pathJs = correctToPath(config.pathJs, path);
 	config.pathTests = correctToPath(config.pathTests, path);
 	config.pathResources = correctToPath(config.pathResources, path);

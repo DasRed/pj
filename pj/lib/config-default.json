@@ -9,8 +9,6 @@
 	],
 	"tests": [],
 
-	"reporter": "console",
-
 	"pathJs": "../js-src",
 	"pathTests": "tests",
 	"pathResources": "resources",
