@@ -52,24 +52,45 @@ ReporterBase.prototype = Object.create(Object.prototype,
 	},
 	specsFailed:
 	{
-		writable: true,
-		configurable: true,
-		enumerable: true,
-		value: []
+		enumerable: false,
+		configurable: false,
+		get: function()
+		{
+			if (this._specsFailed == undefined)
+			{
+				this._specsFailed = [];
+			}
+
+			return this._specsFailed;
+		}
 	},
 	specsRunned:
 	{
-		writable: true,
-		configurable: true,
-		enumerable: true,
-		value: []
+		enumerable: false,
+		configurable: false,
+		get: function()
+		{
+			if (this._specsRunned == undefined)
+			{
+				this._specsRunned = [];
+			}
+
+			return this._specsRunned;
+		}
 	},
 	specsSkipped:
 	{
-		writable: true,
-		configurable: true,
-		enumerable: true,
-		value: []
+		enumerable: false,
+		configurable: false,
+		get: function()
+		{
+			if (this._specsSkipped == undefined)
+			{
+				this._specsSkipped = [];
+			}
+
+			return this._specsSkipped;
+		}
 	}
 });
 
