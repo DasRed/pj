@@ -50,7 +50,7 @@ ReporterDebug.prototype.jasmineStarted = function(info)
 /**
  * a spec is finished
  *
- * @param {Object} result
+ * @param {Object} specResult
  * @returns {ReporterDebug}
  */
 ReporterDebug.prototype.specDone = function(specResult)
