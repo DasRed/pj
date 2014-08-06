@@ -53,7 +53,7 @@ ReporterDebug.prototype.jasmineStarted = function(info)
  * @param {Object} result
  * @returns {ReporterDebug}
  */
-ReporterDebug.prototype.specDone = function(result)
+ReporterDebug.prototype.specDone = function(specResult)
 {
 	console.info('[ReporterDebug] Jasmine has finished the spec "' + specResult.fullName + '" with status "' + specResult.status + '".');
 

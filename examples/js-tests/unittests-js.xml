@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+ <testsuite name="Offline Detector Ping (Basics)" timestamp="2014-08-06T17:16:30" hostname="localhost" time="1.632" errors="0" tests="3" skipped="0" failures="0">
+  <testcase classname="Offline Detector Ping (Basics)" name="should have the initial state &quot;online&quot;" time="0.037">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics)" name="should have the state &quot;online&quot; if no initial state was defined" time="0.041">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics)" name="method &quot;getState&quot; should get the setted state" time="0.043">
+  </testcase>
+ </testsuite>
+ <testsuite name="Offline Detector Ping (Basics) constructor" timestamp="2014-08-06T17:16:30" hostname="localhost" time="0.166" errors="0" tests="2" skipped="0" failures="0">
+  <testcase classname="Offline Detector Ping (Basics) constructor" name="constructor should set the initial state &quot;online&quot; to the state property" time="0.059">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics) constructor" name="constructor should set the initial state &quot;offline&quot; to the state property" time="0.055">
+  </testcase>
+ </testsuite>
+ <testsuite name="Offline Detector Ping (Basics) method &quot;destroy&quot;" timestamp="2014-08-06T17:16:30" hostname="localhost" time="0.126" errors="0" tests="2" skipped="0" failures="0">
+  <testcase classname="Offline Detector Ping (Basics) method &quot;destroy&quot;" name="should return itself" time="0.038">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics) method &quot;destroy&quot;" name="should remove all events" time="0.044">
+  </testcase>
+ </testsuite>
+ <testsuite name="Offline Detector Ping (Basics) method &quot;initialize&quot;" timestamp="2014-08-06T17:16:31" hostname="localhost" time="0.177" errors="0" tests="2" skipped="0" failures="0">
+  <testcase classname="Offline Detector Ping (Basics) method &quot;initialize&quot;" name="should return itself" time="0.057">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics) method &quot;initialize&quot;" name="should set the initial state to the state property" time="0.077">
+  </testcase>
+ </testsuite>
+ <testsuite name="Offline Detector Ping (Basics) method &quot;isOnline&quot;" timestamp="2014-08-06T17:16:31" hostname="localhost" time="0.156" errors="0" tests="2" skipped="0" failures="0">
+  <testcase classname="Offline Detector Ping (Basics) method &quot;isOnline&quot;" name="should return TRUE if the state is setted to &quot;online&quot;" time="0.056">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics) method &quot;isOnline&quot;" name="should return FALSE if the state is setted to &quot;offline&quot;" time="0.052">
+  </testcase>
+ </testsuite>
+ <testsuite name="Offline Detector Ping (Basics) method &quot;setState&quot;" timestamp="2014-08-06T17:16:31" hostname="localhost" time="0.715" errors="0" tests="8" skipped="0" failures="0">
+  <testcase classname="Offline Detector Ping (Basics) method &quot;setState&quot;" name="should return itself" time="0.043">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics) method &quot;setState&quot;" name="should do nothing if the status is already set" time="0.065">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics) method &quot;setState&quot;" name="should throw an error if the value is not set to &quot;online&quot; or &quot;offline&quot;" time="0.047">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics) method &quot;setState&quot;" name="should set the status from &quot;offline&quot; to &quot;online&quot;" time="0.081">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics) method &quot;setState&quot;" name="should set the status &quot;online&quot; to &quot;offline&quot;" time="0.066">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics) method &quot;setState&quot;" name="should trigger the event &quot;online&quot; with the detector as parameter if the status was setted from &quot;offline&quot; to &quot;online&quot;" time="0.077">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics) method &quot;setState&quot;" name="should trigger the event &quot;offline&quot; with the detector as parameter  if the status was setted from &quot;online&quot; to &quot;offline&quot;" time="0.074">
+  </testcase>
+  <testcase classname="Offline Detector Ping (Basics) method &quot;setState&quot;" name="should trigger the event &quot;change&quot; with the detector and status as parameters if a new status was setted" time="0.094">
+  </testcase>
+ </testsuite>
+ <testsuite name="Detector Ping (Handling)" timestamp="2014-08-06T17:16:32" hostname="localhost" time="0.905" errors="0" tests="1" skipped="0" failures="0">
+  <testcase classname="Detector Ping (Handling)" name="should use a default interval of 10000" time="0.019">
+  </testcase>
+ </testsuite>
+ <testsuite name="Detector Ping (Handling) constructor" timestamp="2014-08-06T17:16:32" hostname="localhost" time="0.158" errors="0" tests="3" skipped="0" failures="0">
+  <testcase classname="Detector Ping (Handling) constructor" name="should set the given interval" time="0.034">
+  </testcase>
+  <testcase classname="Detector Ping (Handling) constructor" name="should set the given timeout" time="0.035">
+  </testcase>
+  <testcase classname="Detector Ping (Handling) constructor" name="should set the given url" time="0.036">
+  </testcase>
+ </testsuite>
+ <testsuite name="Detector Ping (Handling) method &quot;destroy&quot;" timestamp="2014-08-06T17:16:32" hostname="localhost" time="0.14" errors="0" tests="2" skipped="0" failures="0">
+  <testcase classname="Detector Ping (Handling) method &quot;destroy&quot;" name="should return itself" time="0.04">
+  </testcase>
+  <testcase classname="Detector Ping (Handling) method &quot;destroy&quot;" name="should remove the interval" time="0.036">
+  </testcase>
+ </testsuite>
+ <testsuite name="Detector Ping (Handling) method &quot;initialize&quot;" timestamp="2014-08-06T17:16:32" hostname="localhost" time="0.514" errors="0" tests="5" skipped="0" failures="0">
+  <testcase classname="Detector Ping (Handling) method &quot;initialize&quot;" name="should return itself" time="0.051">
+  </testcase>
+  <testcase classname="Detector Ping (Handling) method &quot;initialize&quot;" name="should set the initial state &quot;offline&quot; if the ping failed" time="0.048">
+  </testcase>
+  <testcase classname="Detector Ping (Handling) method &quot;initialize&quot;" name="should set the initial state &quot;online&quot; if the ping was successfull" time="0.049">
+  </testcase>
+  <testcase classname="Detector Ping (Handling) method &quot;initialize&quot;" name="should set the state &quot;online&quot; if the ping becomes successfull" time="0.079">
+  </testcase>
+  <testcase classname="Detector Ping (Handling) method &quot;initialize&quot;" name="should set the state &quot;offline&quot; if the ping becomes failed" time="0.19">
+  </testcase>
+ </testsuite>
+</testsuites>
