@@ -25,11 +25,12 @@ function ISODateString(d) {
 		pad(d.getSeconds());
 }
 function escapeInvalidXmlChars(str) {
-	return str.replace(/</g, "&lt;")
+	return str
+		.replace(/\&/g, "&amp;")
+		.replace(/</g, "&lt;")
 		.replace(/\>/g, "&gt;")
 		.replace(/\"/g, "&quot;")
-		.replace(/\'/g, "&apos;")
-		.replace(/\&/g, "&amp;");
+		.replace(/\'/g, "&apos;");
 }
 function log(str) {
 	console.log('[ReporterJUnit] ' + str);
@@ -69,7 +70,7 @@ var ReporterJUnit = function(page, onFinish, file)
 	self.finished = false;
 
 	// sanitize arguments
-	self.useDotNotation = true;
+	self.useDotNotation = false;
 	self.file = file;
 
 	var suites = [];
@@ -174,6 +175,10 @@ var ReporterJUnit = function(page, onFinish, file)
 	}
 
 	function suiteAsXml(suite) {
+		if (suite._specs.length == 0)
+		{
+			return '';
+		}
 		var xml = '\n <testsuite name="' + getFullyQualifiedSuiteName(suite) + '"';
 		xml += ' timestamp="' + ISODateString(suite._startTime) + '"';
 		xml += ' hostname="localhost"'; // many CI systems like Jenkins don't care about this, but junit spec says it is required
