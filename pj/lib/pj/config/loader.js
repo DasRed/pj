@@ -95,17 +95,28 @@ if (fs.isFile(phantom.libraryPath + '/config.json') === true)
 }
 
 // command line config
-if (cliOptions.config !== undefined && fs.isFile(fs.workingDirectory + '/' + cliOptions.config) === true)
+if (cliOptions.config !== undefined)
 {
-	var file = (fs.workingDirectory + '/' + cliOptions.config).replace('\\', '/');
-	var pathParts = file.split('/');
-	file = pathParts.pop();
-
-	configFiles.push(
+	var file = lodash.find(
+	[
+		fs.workingDirectory + '/' + cliOptions.config,
+		cliOptions.config
+	], function(file)
 	{
-		path: pathParts.join('/') + '/',
-		file: file
+		return fs.isFile(file);
 	});
+
+	if (file !== undefined)
+	{
+		var pathParts = file.split('/');
+		file = pathParts.pop();
+
+		configFiles.push(
+		{
+			path: pathParts.join('/') + '/',
+			file: file
+		});
+	}
 }
 
 //loads the config
