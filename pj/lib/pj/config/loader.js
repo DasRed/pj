@@ -94,6 +94,16 @@ if (fs.isFile(phantom.libraryPath + '/config.json') === true)
 	});
 }
 
+// exists config in current working directory
+if (fs.isFile(fs.workingDirectory + '/config.json') === true)
+{
+	configFiles.push(
+	{
+		path: fs.workingDirectory + '/',
+		file: 'config.json'
+	});
+}
+
 // command line config
 if (cliOptions.config !== undefined)
 {
