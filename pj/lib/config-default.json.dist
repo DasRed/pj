@@ -153,7 +153,7 @@
 	 *
 	 * @var {String}
 	 */
-	"pageFile": "page.html",
+	"pageFile": "../page.html",
 
 	/**
 	 * defines the number of milliseconds after the loading of the last resource (js files, images, etc)
