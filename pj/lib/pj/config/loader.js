@@ -20,6 +20,7 @@ var handlePropertiesToCorrectForPathes = function(config, path)
 	config.pathJs = correctToPath(config.pathJs, path);
 	config.pathTests = correctToPath(config.pathTests, path);
 	config.pathResources = correctToPath(config.pathResources, path);
+	config.pathIncludes = correctToPath(config.pathIncludes, path);
 	config.pageFile = correctToPath(config.pageFile, path);
 
 	if (config.log !== undefined)
@@ -212,7 +213,5 @@ lodash.each(cliOptions, function(value, name)
 	obj[name[0]] = value;
 });
 
-config = handlePropertiesToCorrectForPathes(config, fs.workingDirectory);
-
 // export
-module.exports = config;
+module.exports = handlePropertiesToCorrectForPathes(config, fs.workingDirectory);

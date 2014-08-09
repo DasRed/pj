@@ -3,48 +3,55 @@ var lodash = require('./../../lodash/lodash.js');
 var config = require('./../config/loader');
 var fs = require('fs');
 
+var pathesToTest = (
+[
+	config.pathResources,
+	config.pathJs,
+	phantom.libraryPath
+]).concat(config.pathIncludes);
+
+lodash.each(pathesToTest, function(pathToTest, index)
+{
+	console.debug('[PageResourceWatcher] Using pathes to test for files (#' + index + '): ' + pathToTest);
+});
+
 /**
  * @param {Object} resource
  * @returns {String}
  */
 var findFileForWebRequest = function(resource)
 {
-	var pathesToTest =
-	[
-		config.pathResources,
-		config.pathJs,
-		phantom.libraryPath
-	];
+	var url = resource.url;
+	var urlWithOutProtocol = url.replace('file:///', '');
+	var fileAsRequested = urlWithOutProtocol;
+
+	var parameters = '';
+	var parameterStartIndex = fileAsRequested.indexOf('?');
+	if (parameterStartIndex !== -1)
+	{
+		parameters = fileAsRequested.substr(parameterStartIndex);
+		fileAsRequested = fileAsRequested.substr(0, parameterStartIndex);
+	}
+
+	console.debug('[PageResourceWatcher] Searching file ' + fileAsRequested + ' for Request (#' + resource.id + ') in "' + fs.workingDirectory + '"');
+	// requestes file does exists in working dir
+	if (fs.exists(fs.workingDirectory + '/' + fileAsRequested) === true)
+	{
+		return 'file:///' + fs.absolute(fs.workingDirectory + '/' + fileAsRequested) + parameters;
+	}
+
+	// requested file does exists
+	console.debug('[PageResourceWatcher] Searching file ' + fileAsRequested + ' for Request (#' + resource.id + ') as it is.');
+	if (fs.exists(fileAsRequested) === true)
+	{
+		return resource.url;
+	}
 
 	for (var i = 0; i < pathesToTest.length; i++)
 	{
-		var url = resource.url;
-		var urlWithOutProtocol = url.replace('file:///', '');
-		var fileAsRequested = urlWithOutProtocol;
-
-		var parameters = '';
-		var parameterStartIndex = fileAsRequested.indexOf('?');
-		if (parameterStartIndex !== -1)
-		{
-			parameters = fileAsRequested.substr(parameterStartIndex);
-			fileAsRequested = fileAsRequested.substr(0, parameterStartIndex);
-		}
-
-		// requestes file does exists in working dir
-		if (fs.exists(fs.workingDirectory + '/' + fileAsRequested) === true)
-		{
-			return 'file:///' + fs.absolute(fs.workingDirectory + '/' + fileAsRequested) + parameters;
-		}
-
-		// requested file does exists
-		if (fs.exists(fileAsRequested) === true)
-		{
-			return resource.url;
-		}
-
 		var file = pathesToTest[i] + '/' + fileAsRequested.replace(phantom.libraryPath, '');
 		file = file.replace('//', '/').replace('\\\\', '\\\\');
-		console.debug('[PageResourceWatcher] Searching file ' + fileAsRequested + ' for Request (#' + resource.id + ') in "' + pathesToTest[i]);
+		console.debug('[PageResourceWatcher] Searching file ' + fileAsRequested + ' for Request (#' + resource.id + ') in "' + pathesToTest[i] + '"');
 
 		if (fs.exists(file) === true)
 		{

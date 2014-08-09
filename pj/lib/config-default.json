@@ -12,6 +12,7 @@
 	"pathJs": "../js-src",
 	"pathTests": "tests",
 	"pathResources": "resources",
+	"pathIncludes": [],
 
 	"exitOnFinish": true,
 

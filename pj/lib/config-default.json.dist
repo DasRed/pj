@@ -49,6 +49,11 @@
 	"pathResources": null,
 
 	/**
+	 * defines additional include pathes relative to the config
+	 */
+	"pathIncludes": [],
+
+	/**
 	 * exits on finishing all tests
 	 *
 	 * @var {Boolean}
