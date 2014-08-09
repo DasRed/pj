@@ -30,7 +30,13 @@ var findFileForWebRequest = function(resource)
 			fileAsRequested = fileAsRequested.substr(0, parameterStartIndex);
 		}
 
-		// requested fiel does exists
+		// requestes file does exists in working dir
+		if (fs.exists(fs.workingDirectory + '/' + fileAsRequested) === true)
+		{
+			return 'file:///' + fs.absolute(fs.workingDirectory + '/' + fileAsRequested) + parameters;
+		}
+
+		// requested file does exists
 		if (fs.exists(fileAsRequested) === true)
 		{
 			return resource.url;
