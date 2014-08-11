@@ -33,7 +33,7 @@ var findFileForWebRequest = function(resource)
 		fileAsRequested = fileAsRequested.substr(0, parameterStartIndex);
 	}
 
-	console.debug('[PageResourceWatcher] Searching file ' + fileAsRequested + ' for Request (#' + resource.id + ') in "' + fs.workingDirectory + '"');
+	console.debug('[PageResourceWatcher] Request (#' + resource.id + '): Searching file ' + fileAsRequested + ' in "' + fs.workingDirectory + '"');
 	// requestes file does exists in working dir
 	if (fs.exists(fs.workingDirectory + '/' + fileAsRequested) === true)
 	{
@@ -41,7 +41,7 @@ var findFileForWebRequest = function(resource)
 	}
 
 	// requested file does exists
-	console.debug('[PageResourceWatcher] Searching file ' + fileAsRequested + ' for Request (#' + resource.id + ') as it is.');
+	console.debug('[PageResourceWatcher] Request (#' + resource.id + '): Searching file ' + fileAsRequested + ' as it is.');
 	if (fs.exists(fileAsRequested) === true)
 	{
 		return resource.url;
@@ -51,7 +51,7 @@ var findFileForWebRequest = function(resource)
 	{
 		var file = pathesToTest[i] + '/' + fileAsRequested.replace(phantom.libraryPath, '');
 		file = file.replace('//', '/').replace('\\\\', '\\\\');
-		console.debug('[PageResourceWatcher] Searching file ' + fileAsRequested + ' for Request (#' + resource.id + ') in "' + pathesToTest[i] + '"');
+		console.debug('[PageResourceWatcher] Request (#' + resource.id + '): Searching file ' + fileAsRequested + ' in "' + pathesToTest[i] + '"');
 
 		if (fs.exists(file) === true)
 		{
@@ -194,7 +194,7 @@ PageResourceWatcher.prototype.receive = function(resource)
 			break;
 
 		default:
-			console.warn('[PageResourceWatcher] Unkown stage "' + resource.stage + '" for resource (#' + resource.id + '): ' + resource.url);
+			console.warn('[PageResourceWatcher] Request (#' + resource.id + '): Unkown stage "' + resource.stage + '": ' + resource.url);
 			break;
 	}
 
