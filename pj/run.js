@@ -99,18 +99,18 @@ if (cliOptions.tests === undefined)
 // use given tests
 else
 {
-	console.info('[Run] creating injector from cli options file with tests ' + JSON.stringify(cliOptions.tests) + ' in path "' + config.pathTests + '"');
+	console.info('[Run] creating injector from cli options file with tests ' + JSON.stringify(config.tests) + '.');
 	var testFiles = [];
-	cliOptions.tests.forEach(function(entry, index)
+	config.tests.forEach(function(entry, index)
 	{
-		if (fs.isDirectory(config.pathTests + '/' + entry) === true)
+		if (fs.isDirectory(entry) === true)
 		{
-			var testCollector = new injector(testFiles, config.pathTests + '/' + entry, 'js');
+			var testCollector = new injector(testFiles, entry, 'js');
 			testFiles = testCollector.getFiles();
 		}
 		else
 		{
-			testFiles.push(config.pathTests + '/' + entry);
+			testFiles.push(entry);
 		}
 	});
 	injectorTests = new injector(testFiles);

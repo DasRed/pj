@@ -213,5 +213,11 @@ lodash.each(cliOptions, function(value, name)
 	obj[name[0]] = value;
 });
 
+// taking CLI Options --tests
+if (cliOptions.tests !== undefined)
+{
+	config.tests = lodash.clone(cliOptions.tests);
+}
+
 // export
 module.exports = handlePropertiesToCorrectForPathes(config, fs.workingDirectory);

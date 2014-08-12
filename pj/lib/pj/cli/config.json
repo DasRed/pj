@@ -36,7 +36,7 @@
 		"name": "tests",
 		"type": "list",
 		"short": "t",
-		"description": "Runs only the given test files or pathes containing test files relative defined to config.pathTests."
+		"description": "Runs only the given test files or pathes containing test files relative defined to working directory."
 	},
 
 	"filter":
