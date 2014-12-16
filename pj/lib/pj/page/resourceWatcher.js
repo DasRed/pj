@@ -5,17 +5,16 @@ var fs = require('fs');
 
 var pathesToTest = 
 [
-	{index: 0, score: 1, weight: 1, path: fs.workingDirectory}
-	{index: 1, score: 1, weight: 1, path: null},
-	{index: 2, score: 1, weight: 1, path: config.pathResources},
-	{index: 3, score: 1, weight: 1, path: config.pathJs},
-	{index: 4, score: 1, weight: 1, path: phantom.libraryPath}
+	{score: 1, weight: 1, path: fs.workingDirectory},
+	{score: 1, weight: 1, path: null},
+	{score: 1, weight: 1, path: config.pathResources},
+	{score: 1, weight: 1, path: config.pathJs},
+	{score: 1, weight: 1, path: phantom.libraryPath}
 ];
 lodash.each(config.pathIncludes, function(path)
 {
 	pathesToTest.push(
 	{
-		index: pathesToTest.length, 
 		score: 1,
 		weight: 1, 
 		path: path
@@ -24,19 +23,19 @@ lodash.each(config.pathIncludes, function(path)
 
 lodash.each(pathesToTest, function(path)
 {
-	console.debug('[PageResourceWatcher] Using pathes to test for files (#' + path.index + '): ' + path.path);
+	console.debug('[PageResourceWatcher] Using pathes to test for files (score: ' + path.score + '): ' + path.path);
 });
 
 var pathesToReplace = 
 [
-	{index: 0, score: 1, weight: 1, path: null},
-	{index: 1, score: 1, weight: 1, path: phantom.libraryPath},
-	{index: 2, score: 1, weight: 1, path: config.configPath}
+	{score: 1, weight: 1, path: null},
+	{score: 1, weight: 1, path: phantom.libraryPath},
+	{score: 1, weight: 1, path: config.configPath}
 ];
 
 lodash.each(pathesToReplace, function(path)
 {
-	console.debug('[PageResourceWatcher] Using pathes to replace for files (#' + path.index + '): ' + path.path);
+	console.debug('[PageResourceWatcher] Using pathes to replace for files (score: ' + path.score + '): ' + path.path);
 });
 
 /**
@@ -50,9 +49,7 @@ var findFileForWebRequest = function(resource)
 	var fileAsRequested = urlWithOutProtocol;
 
 	var i = undefined;
-	var j = unddefined;
-	var indexReplace = undefined;
-	var indexTest = undefined;
+	var j = undefined;
 	var file = undefined;
 	
 	var parameters = '';
@@ -63,22 +60,7 @@ var findFileForWebRequest = function(resource)
 		fileAsRequested = fileAsRequested.substr(0, parameterStartIndex);
 	}
 
-	var pathesToTestSorted = pathesToTest.sort(function(pathA, pathA)
-	{
-		if (pathA.score > pathA.score)
-		{
-			return -1;
-		}
-		
-		else if (pathA.score < pathA.score)
-		{
-			return 1;
-		}
-		
-		return 0;
-	});
-	
-	var pathesToReplaceSorted = pathesToReplace.sort(function(pathA, pathB)
+	pathesToTest = pathesToTest.sort(function(pathA, pathB)
 	{
 		if (pathA.score > pathB.score)
 		{
@@ -93,24 +75,35 @@ var findFileForWebRequest = function(resource)
 		return 0;
 	});
 	
-	for (j = 0; j < pathesToReplaceSorted.length; j++)
+	pathesToReplace = pathesToReplace.sort(function(pathA, pathB)
 	{
-		indexReplace = pathesToReplaceSorted[j].index;
-		
-		for (i = 0; i < pathesToTestSorted.length; i++)
+		if (pathA.score > pathB.score)
 		{
-			indexTest = pathesToTestSorted[i].index;
+			return -1;
+		}
 		
+		else if (pathA.score < pathB.score)
+		{
+			return 1;
+		}
+		
+		return 0;
+	});
+	
+	for (j = 0; j < pathesToReplace.length; j++)
+	{
+		for (i = 0; i < pathesToTest.length; i++)
+		{
 			file = fileAsRequested;
 			
-			if (pathesToReplace[indexReplace].path !== null)
+			if (pathesToReplace[j].path !== null)
 			{
-				file = file.replace(pathesToReplace[indexReplace].path, '');
+				file = file.replace(pathesToReplace[j].path, '');
 			}
 			
-			if (pathesToTest[indexTest].path !== null)
+			if (pathesToTest[i].path !== null)
 			{
-				file = pathesToTest[indexTest].path + '/' + file;
+				file = pathesToTest[i].path + '/' + file;
 			}
 			
 			file = file.replace('//', '/').replace('\\\\', '\\\\');
@@ -118,8 +111,8 @@ var findFileForWebRequest = function(resource)
 
 			if (fs.exists(file) === true)
 			{
-				pathesToTest[indexTest].score += pathesToTest[indexTest].weight;
-				pathesToReplace[indexReplace].score += pathesToReplace[indexReplace].weight;
+				pathesToTest[i].score += pathesToTest[i].weight;
+				pathesToReplace[j].score += pathesToReplace[j].weight;
 				
 				return 'file:///' + file + parameters;
 			}
