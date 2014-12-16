@@ -3,16 +3,40 @@ var lodash = require('./../../lodash/lodash.js');
 var config = require('./../config/loader');
 var fs = require('fs');
 
-var pathesToTest = (
+var pathesToTest = 
 [
-	config.pathResources,
-	config.pathJs,
-	phantom.libraryPath
-]).concat(config.pathIncludes);
-
-lodash.each(pathesToTest, function(pathToTest, index)
+	{index: 0, score: 1, weight: 1, path: fs.workingDirectory}
+	{index: 1, score: 1, weight: 1, path: null},
+	{index: 2, score: 1, weight: 1, path: config.pathResources},
+	{index: 3, score: 1, weight: 1, path: config.pathJs},
+	{index: 4, score: 1, weight: 1, path: phantom.libraryPath}
+];
+lodash.each(config.pathIncludes, function(path)
 {
-	console.debug('[PageResourceWatcher] Using pathes to test for files (#' + index + '): ' + pathToTest);
+	pathesToTest.push(
+	{
+		index: pathesToTest.length, 
+		score: 1,
+		weight: 1, 
+		path: path
+	});
+});
+
+lodash.each(pathesToTest, function(path)
+{
+	console.debug('[PageResourceWatcher] Using pathes to test for files (#' + path.index + '): ' + path.path);
+});
+
+var pathesToReplace = 
+[
+	{index: 0, score: 1, weight: 1, path: null},
+	{index: 1, score: 1, weight: 1, path: phantom.libraryPath},
+	{index: 2, score: 1, weight: 1, path: config.configPath}
+];
+
+lodash.each(pathesToReplace, function(path)
+{
+	console.debug('[PageResourceWatcher] Using pathes to replace for files (#' + path.index + '): ' + path.path);
 });
 
 /**
@@ -25,6 +49,12 @@ var findFileForWebRequest = function(resource)
 	var urlWithOutProtocol = url.replace('file:///', '');
 	var fileAsRequested = urlWithOutProtocol;
 
+	var i = undefined;
+	var j = unddefined;
+	var indexReplace = undefined;
+	var indexTest = undefined;
+	var file = undefined;
+	
 	var parameters = '';
 	var parameterStartIndex = fileAsRequested.indexOf('?');
 	if (parameterStartIndex !== -1)
@@ -33,29 +63,66 @@ var findFileForWebRequest = function(resource)
 		fileAsRequested = fileAsRequested.substr(0, parameterStartIndex);
 	}
 
-	console.debug('[PageResourceWatcher] Request (#' + resource.id + '): Searching file ' + fileAsRequested + ' in "' + fs.workingDirectory + '"');
-	// requestes file does exists in working dir
-	if (fs.exists(fs.workingDirectory + '/' + fileAsRequested) === true)
+	var pathesToTestSorted = pathesToTest.sort(function(pathA, pathA)
 	{
-		return 'file:///' + fs.absolute(fs.workingDirectory + '/' + fileAsRequested) + parameters;
-	}
-
-	// requested file does exists
-	console.debug('[PageResourceWatcher] Request (#' + resource.id + '): Searching file ' + fileAsRequested + ' as it is.');
-	if (fs.exists(fileAsRequested) === true)
-	{
-		return resource.url;
-	}
-
-	for (var i = 0; i < pathesToTest.length; i++)
-	{
-		var file = pathesToTest[i] + '/' + fileAsRequested.replace(phantom.libraryPath, '');
-		file = file.replace('//', '/').replace('\\\\', '\\\\');
-		console.debug('[PageResourceWatcher] Request (#' + resource.id + '): Searching file ' + fileAsRequested + ' in "' + pathesToTest[i] + '"');
-
-		if (fs.exists(file) === true)
+		if (pathA.score > pathA.score)
 		{
-			return 'file:///' + file + parameters;
+			return -1;
+		}
+		
+		else if (pathA.score < pathA.score)
+		{
+			return 1;
+		}
+		
+		return 0;
+	});
+	
+	var pathesToReplaceSorted = pathesToReplace.sort(function(pathA, pathB)
+	{
+		if (pathA.score > pathB.score)
+		{
+			return -1;
+		}
+		
+		else if (pathA.score < pathB.score)
+		{
+			return 1;
+		}
+		
+		return 0;
+	});
+	
+	for (j = 0; j < pathesToReplaceSorted.length; j++)
+	{
+		indexReplace = pathesToReplaceSorted[j].index;
+		
+		for (i = 0; i < pathesToTestSorted.length; i++)
+		{
+			indexTest = pathesToTestSorted[i].index;
+		
+			file = fileAsRequested;
+			
+			if (pathesToReplace[indexReplace].path !== null)
+			{
+				file = file.replace(pathesToReplace[indexReplace].path, '');
+			}
+			
+			if (pathesToTest[indexTest].path !== null)
+			{
+				file = pathesToTest[indexTest].path + '/' + file;
+			}
+			
+			file = file.replace('//', '/').replace('\\\\', '\\\\');
+			console.debug('[PageResourceWatcher] Request (#' + resource.id + '): Searching file ' + fileAsRequested + ' in "' + file + '"');
+
+			if (fs.exists(file) === true)
+			{
+				pathesToTest[indexTest].score += pathesToTest[indexTest].weight;
+				pathesToReplace[indexReplace].score += pathesToReplace[indexReplace].weight;
+				
+				return 'file:///' + file + parameters;
+			}
 		}
 	}
 

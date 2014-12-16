@@ -6,6 +6,8 @@ var system = require('system');
 var lodash = require('./../../lodash/lodash.js');
 var cliOptions = require('./../cli/parser');
 
+var configPath = null;
+
 /**
  * handles path information on config
  *
@@ -84,6 +86,7 @@ var configFiles = [
 	path: phantom.libraryPath + '/lib/',
 	file: 'config-default.json'
 }];
+configPath = phantom.libraryPath + '/lib/';
 
 // exists config near run.js
 if (fs.isFile(phantom.libraryPath + '/config.json') === true)
@@ -93,6 +96,8 @@ if (fs.isFile(phantom.libraryPath + '/config.json') === true)
 		path: phantom.libraryPath + '/',
 		file: 'config.json'
 	});
+	
+	configPath = phantom.libraryPath + '/';
 }
 
 // exists config in current working directory
@@ -103,6 +108,8 @@ if (fs.isFile(fs.workingDirectory + '/config.json') === true)
 		path: fs.workingDirectory + '/',
 		file: 'config.json'
 	});
+	
+	configPath = fs.workingDirectory + '/';
 }
 
 // command line config
@@ -127,6 +134,8 @@ if (cliOptions.config !== undefined)
 			path: pathParts.join('/') + '/',
 			file: file
 		});
+		
+		configPath = pathParts.join('/') + '/';
 	}
 }
 
@@ -218,6 +227,9 @@ if (cliOptions.tests !== undefined)
 {
 	config.tests = lodash.clone(cliOptions.tests);
 }
+
+// set config path to path on which config was found
+config.configPath = configPath;
 
 // export
 module.exports = handlePropertiesToCorrectForPathes(config, fs.workingDirectory);
