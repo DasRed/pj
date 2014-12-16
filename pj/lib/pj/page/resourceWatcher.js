@@ -3,12 +3,14 @@ var lodash = require('./../../lodash/lodash.js');
 var config = require('./../config/loader');
 var fs = require('fs');
 
-var pathesToTest = 
+var pathesToTest =
 [
 	{score: 1, weight: 1, path: fs.workingDirectory},
 	{score: 1, weight: 1, path: null},
 	{score: 1, weight: 1, path: config.pathResources},
+	{score: 1, weight: 1, path: fs.absolute(config.pathResources)},
 	{score: 1, weight: 1, path: config.pathJs},
+	{score: 1, weight: 1, path: fs.absolute(config.pathJs)},
 	{score: 1, weight: 1, path: phantom.libraryPath}
 ];
 lodash.each(config.pathIncludes, function(path)
@@ -16,8 +18,14 @@ lodash.each(config.pathIncludes, function(path)
 	pathesToTest.push(
 	{
 		score: 1,
-		weight: 1, 
+		weight: 1,
 		path: path
+	});
+	pathesToTest.push(
+	{
+		score: 1,
+		weight: 1,
+		path: fs.absolute(path)
 	});
 });
 
@@ -26,11 +34,12 @@ lodash.each(pathesToTest, function(path)
 	console.debug('[PageResourceWatcher] Using pathes to test for files (score: ' + path.score + '): ' + path.path);
 });
 
-var pathesToReplace = 
+var pathesToReplace =
 [
 	{score: 1, weight: 1, path: null},
 	{score: 1, weight: 1, path: phantom.libraryPath},
-	{score: 1, weight: 1, path: config.configPath}
+	{score: 1, weight: 1, path: config.configPath},
+	{score: 1, weight: 1, path: fs.absolute(config.configPath)}
 ];
 
 lodash.each(pathesToReplace, function(path)
@@ -51,7 +60,7 @@ var findFileForWebRequest = function(resource)
 	var i = undefined;
 	var j = undefined;
 	var file = undefined;
-	
+
 	var parameters = '';
 	var parameterStartIndex = fileAsRequested.indexOf('?');
 	if (parameterStartIndex !== -1)
@@ -66,46 +75,46 @@ var findFileForWebRequest = function(resource)
 		{
 			return -1;
 		}
-		
+
 		else if (pathA.score < pathB.score)
 		{
 			return 1;
 		}
-		
+
 		return 0;
 	});
-	
+
 	pathesToReplace = pathesToReplace.sort(function(pathA, pathB)
 	{
 		if (pathA.score > pathB.score)
 		{
 			return -1;
 		}
-		
+
 		else if (pathA.score < pathB.score)
 		{
 			return 1;
 		}
-		
+
 		return 0;
 	});
-	
+
 	for (j = 0; j < pathesToReplace.length; j++)
 	{
 		for (i = 0; i < pathesToTest.length; i++)
 		{
 			file = fileAsRequested;
-			
+
 			if (pathesToReplace[j].path !== null)
 			{
 				file = file.replace(pathesToReplace[j].path, '');
 			}
-			
+
 			if (pathesToTest[i].path !== null)
 			{
 				file = pathesToTest[i].path + '/' + file;
 			}
-			
+
 			file = file.replace('//', '/').replace('\\\\', '\\\\');
 			console.debug('[PageResourceWatcher] Request (#' + resource.id + '): Searching file ' + fileAsRequested + ' in "' + file + '"');
 
@@ -113,7 +122,7 @@ var findFileForWebRequest = function(resource)
 			{
 				pathesToTest[i].score += pathesToTest[i].weight;
 				pathesToReplace[j].score += pathesToReplace[j].weight;
-				
+
 				return 'file:///' + file + parameters;
 			}
 		}
