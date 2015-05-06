@@ -1,7 +1,7 @@
 {
 	"bootstrap":
 	[
-		"jasmine/jasmine-2.0.1/lib/jasmine-core/jasmine.js",
+		"jasmine/jasmine-2.3.1/lib/jasmine-core/jasmine.js",
 		"jasmine/boot-2.x.js",
 		"jasmine/bridge-reporter-2.x.js",
 		"jasmine/extension/suite.js",
